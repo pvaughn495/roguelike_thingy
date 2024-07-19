@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://btd4nl2dtl1wf"]
+
+[ext_resource type="Script" path="res://_Scenes/Test/2DTest.gd" id="1_4eiy0"]
+[ext_resource type="TileSet" uid="uid://bhalbaoof2no" path="res://Art/dungeon_tileset.tres" id="2_60x3u"]
+
+[node name="2dTest" type="Node2D" node_paths=PackedStringArray("camera", "tilemap")]
+script = ExtResource("1_4eiy0")
+camera = NodePath("Camera2D")
+tilemap = NodePath("TileMap")
+
+[node name="TileMap" type="TileMap" parent="."]
+tile_set = ExtResource("2_60x3u")
+format = 2
+layer_0/name = "Base"
+layer_1/name = "Feature"
+layer_1/tile_data = PackedInt32Array()
+
+[node name="Camera2D" type="Camera2D" parent="."]

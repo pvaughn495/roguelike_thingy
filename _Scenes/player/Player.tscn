@@ -1,0 +1,26 @@
+[gd_scene load_steps=6 format=3 uid="uid://behfjk3315onj"]
+
+[ext_resource type="Texture2D" uid="uid://b4efyienmuncl" path="res://Art/kenney_micro-roguelike/Tilemap/colored_tilemap.png" id="1_6qlj5"]
+[ext_resource type="Script" path="res://_Scenes/player/Player.gd" id="1_041os"]
+[ext_resource type="PackedScene" uid="uid://bxg1fhg8egbec" path="res://_Scenes/Components/health/Health.tscn" id="3_vv24e"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3h7yg"]
+atlas = ExtResource("1_6qlj5")
+region = Rect2(36, 0, 8, 8)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jk8vv"]
+size = Vector2(8, 8)
+
+[node name="Player" type="StaticBody2D" node_paths=PackedStringArray("health")]
+script = ExtResource("1_041os")
+health = NodePath("Health")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = SubResource("AtlasTexture_3h7yg")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_jk8vv")
+
+[node name="Health" parent="." instance=ExtResource("3_vv24e")]
+
+[connection signal="out_of_health" from="Health" to="." method="_on_health_out_of_health"]

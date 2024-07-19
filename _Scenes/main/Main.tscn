@@ -1,0 +1,30 @@
+[gd_scene load_steps=5 format=3 uid="uid://bca72tl4qqlsl"]
+
+[ext_resource type="Script" path="res://_Scenes/main/Main.gd" id="1_jfq78"]
+[ext_resource type="TileSet" uid="uid://bhalbaoof2no" path="res://Art/dungeon_tileset.tres" id="2_g4n1h"]
+[ext_resource type="PackedScene" uid="uid://1yxdfyebpk8v" path="res://_Scenes/Enemy/Enemy.tscn" id="2_k2op7"]
+[ext_resource type="PackedScene" uid="uid://behfjk3315onj" path="res://_Scenes/player/Player.tscn" id="3_qtgtn"]
+
+[node name="Main" type="Node2D" node_paths=PackedStringArray("player", "tilemap", "camera")]
+script = ExtResource("1_jfq78")
+player = NodePath("Player")
+tilemap = NodePath("TileMap")
+camera = NodePath("Camera2D")
+enemy_scene = ExtResource("2_k2op7")
+
+[node name="TileMap" type="TileMap" parent="."]
+tile_set = ExtResource("2_g4n1h")
+format = 2
+layer_0/name = "Base"
+layer_0/tile_data = PackedInt32Array(-65530, 327680, 9, -131066, 262144, 9, -196602, 262144, 9, -262138, 262144, 9, -327674, 196608, 9, -327675, 65536, 9, -327676, 458752, 9, -327677, 65536, 9, -327678, 65536, 9, -327679, 65536, 9, -327680, 131072, 9, -131070, 131072, 1, -262145, 131072, 4, 6, 589824, 9, -262143, 262144, 3, -131072, 262144, 4, -65533, 262144, 4, -196604, 262144, 4, 1, 655360, 9, -3, 851968, 5, 4, 655360, 1, -131075, 65536, 1, -131074, 65536, 1, -131073, 65536, 1, -196608, 65536, 1, -65537, 65536, 1, -1, 65536, 1, -65536, 65536, 1, -65535, 65536, 1, -65534, 65536, 1, 2, 65536, 1, 0, 65536, 1, 65535, 65536, 1, 65534, 65536, 1, -262144, 65536, 1, -196609, 65536, 1, -262148, 65536, 5, -262149, 131072, 4, -327684, 196608, 1, -196612, 196608, 1, 5, 0, 9, 65541, 262144, 9, 131077, 262144, 9, 196613, 589824, 9, 196612, 65536, 9, 196611, 65536, 9, 196610, 65536, 9, 196609, 65536, 9, 196608, 65536, 9, 262143, 524288, 9, 262142, 65536, 9, 262141, 65536, 9, 262140, 65536, 9, 262139, 65536, 9, 262138, 65536, 9, 262137, 393216, 9, 131065, 262144, 9, 65529, 262144, 9, 196601, 262144, 9, -7, 0, 0, -6, 65536, 0, -5, 65536, 0, -4, 196608, 2, -65540, 196608, 1, -131076, 196608, 1, 65530, 0, 4)
+layer_1/name = "Feature"
+layer_1/tile_data = PackedInt32Array(-327678, 262144, 2, -327680, 327680, 2, -327676, 393216, 2)
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="Player" parent="." instance=ExtResource("3_qtgtn")]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(0.5, 0.5)
+
+[connection signal="move_player" from="Player" to="." method="_on_player_move_player"]

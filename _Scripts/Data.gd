@@ -94,6 +94,41 @@ const ENEMY_GROUPS := [["Rat", "Cactus", "Turtle", "Crab"],
 	["Octopus", "Specter", "Eye"]
 	]
 
-
-
-
+const ITEMS := {
+	"Potion" = {
+		"Atlas" = Vector2i(7,8)
+	},
+	"Food" = {
+		"Atlas" = Vector2i(10,8)
+	},
+	"Sword" = {
+		"Atlast" = Vector2i(6,4)
+	},
+	"Axe" = {
+		"Atlas" = Vector2i(7,4)
+	},
+	"Bow" = {
+		"Atlas" = Vector2i(8,4)
+	},
+	"Arrow" = {
+		"Atlas" = Vector2i(9,4)
+	},
+	"Spear" = {
+		"Atlas" = Vector2i(10,4),
+	},
+	"Club" = {
+		"Atlas" = Vector2i(10,3)
+	},
+	"Shield" = {
+		"Atlas" = Vector2i(10,6)
+	},
+	"Armor" = {
+		"Atlas" = Vector2i(10,2)
+	},
+	"Ring" = {
+		"Atlas" = Vector2i(9,5)
+	},
+	"Key" = {
+		"Atlas" = Vector2i(10,5)
+	}
+}

@@ -28,6 +28,7 @@ func index_to_xy(index : int) -> Vector2i:
 	return Vector2i(index/num_rows, index%num_rows)
 
 func get_from_ij(i:int, j:int) -> int:
+	if i < 0 or i >= num_rows or j < 0 or j >= num_cols: return 0
 	return contents[ij_to_index(i,j)]
 
 func get_width() -> int: return num_cols
@@ -38,6 +39,7 @@ func get_from_coord(coord : Vector2i) -> int:
 	return get_from_ij(coord.y, coord.x)
 
 func set_at_ij(i:int, j:int, val : int):
+	if i < 0 or i >= num_rows or j < 0 or j >= num_cols: return
 	contents[ij_to_index(i,j)] = val
 
 func set_at_coord(coord : Vector2i, val : int):

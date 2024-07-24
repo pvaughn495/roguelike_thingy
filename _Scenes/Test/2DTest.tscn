@@ -1,7 +1,17 @@
-[gd_scene load_steps=3 format=3 uid="uid://btd4nl2dtl1wf"]
+[gd_scene load_steps=6 format=3 uid="uid://btd4nl2dtl1wf"]
 
 [ext_resource type="Script" path="res://_Scenes/Test/2DTest.gd" id="1_4eiy0"]
 [ext_resource type="TileSet" uid="uid://bhalbaoof2no" path="res://Art/dungeon_tileset.tres" id="2_60x3u"]
+[ext_resource type="Texture2D" uid="uid://bs84fapl23j5o" path="res://Art/kenney_micro-roguelike/Tiles/Monochrome/tile_0017.png" id="3_wina7"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_1rfgl"]
+texture = ExtResource("3_wina7")
+texture_region_size = Vector2i(8, 8)
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_qjq6c"]
+tile_size = Vector2i(8, 8)
+sources/0 = SubResource("TileSetAtlasSource_1rfgl")
 
 [node name="2dTest" type="Node2D" node_paths=PackedStringArray("camera", "tilemap")]
 script = ExtResource("1_4eiy0")
@@ -13,6 +23,13 @@ tile_set = ExtResource("2_60x3u")
 format = 2
 layer_0/name = "Base"
 layer_1/name = "Feature"
+layer_1/tile_data = PackedInt32Array()
+
+[node name="TileMap2" type="TileMap" parent="."]
+tile_set = SubResource("TileSet_qjq6c")
+format = 2
+layer_0/name = "Fog"
+layer_1/name = "Transparancy"
 layer_1/tile_data = PackedInt32Array()
 
 [node name="Camera2D" type="Camera2D" parent="."]

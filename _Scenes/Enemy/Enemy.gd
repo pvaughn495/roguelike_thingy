@@ -29,7 +29,7 @@ func _on_health_out_of_health():
 
 func set_enemy_type(type_name: String):
 	var enemy_type_dict = Data.ENEMIES[type_name]
-	region_rect = enemy_type_dict["Atlas_Coord"]
+	region_rect.position = 9.0*Vector2(enemy_type_dict["Atlas_Coord"])
 	atk = enemy_type_dict["Atk"]
 	health.set_max_health(enemy_type_dict["HP"])
 	health.set_health(enemy_type_dict["HP"])

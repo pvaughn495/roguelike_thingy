@@ -3,6 +3,7 @@ class_name Player
 
 @export var health : Health
 
+var vision_range = Vector2i(10, 8)
 
 signal move_player
 # Called when the node enters the scene tree for the first time.

@@ -24,7 +24,11 @@ const DUN_DICT := {
 		"Blank" = Vector2i(1,1),
 		"Rubble" = Vector2i(4,4),
 		"Weeds" = Vector2i(5,4),
-		"Plate" = Vector2i(2,1)
+		"Plate" = Vector2i(2,1),
+		"Stair_UP" = Vector2i(5,3),
+		"Stair_Down" = Vector2i(4,3),
+		"Trap" = Vector2i(2,1),
+		"Chest" = Vector2i(9,3)
 	}
 }
 
@@ -37,7 +41,8 @@ var paths : Array[Array] = []
 var distance_from_center : Array[Vector2i]
 # Called when the node enters the scene tree for the first time.
 
-func generate_dungeon(num_rooms, min_room_size, max_room_size):
+@warning_ignore("shadowed_variable")
+func generate_dungeon(num_rooms: int, min_room_size: int, max_room_size: int):
 	## 1. generate room centers with Poisson
 	self.num_rooms = num_rooms
 	var point_generator = PoissonDiskLoose.new()

@@ -11,7 +11,7 @@ region = Rect2(36, 0, 8, 8)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_jk8vv"]
 size = Vector2(8, 8)
 
-[node name="Player" type="StaticBody2D" node_paths=PackedStringArray("health")]
+[node name="Player" type="StaticBody2D" node_paths=PackedStringArray("health") groups=["player"]]
 script = ExtResource("1_041os")
 health = NodePath("Health")
 

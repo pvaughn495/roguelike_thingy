@@ -8,10 +8,14 @@ const SHADOW_LAYER = 3
 @export var tilemap : TileMap
 @export var camera : Camera2D
 @export var enemy_scene : PackedScene
+@export var hud : HUD
+@export var equipmenu : EquipMenu
+@export var invenmenu : InventoryMenu
 
 
 var astar_offset : Vector2i
 var rooms : Array[Rect2i]
+var dungeon_depth : int
 
 
 @onready var enemy_list : Array[Enemy] = []
@@ -27,19 +31,89 @@ var rooms : Array[Rect2i]
 ## 4. profit
 
 
-var turn_state = 0
+var turn_state = 0 #0: system, 1: player, 2: enemy
+var menu_state = 0 #0: no menu, 1. inventory, 2: equipment
 var active = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	dungeon_depth = 0
 	make_new_level()
+	equipmenu.equipped_item.connect(_on_equip_menu_equip)
+	player.stats_changed.connect(equipmenu.update_stats)
+	player.died.connect(_on_player_died)
+	connect_player_hb_hud()
+	connect_player_inventory()
+	player.prepare_pc()
 	turn_state = 1
 	active = true
+	
 
 func _physics_process(_delta):
-	if enemy_list.size() < 10 and active:
+	if enemy_list.size() < 10+dungeon_depth*2 and active:
 		spawn_random_enemy()
 
+func _input(event: InputEvent):
+	if turn_state == 2: return
+	
+	if event.is_action_pressed("Character"):
+		get_viewport().set_input_as_handled()
+		match menu_state:
+			0:
+				turn_state = 0
+				menu_state = 2
+				equipmenu.visible = true
+				equipmenu.wep_dropdown.grab_focus()
+				return
+			1:
+				menu_state = 2
+				equipmenu.visible = true
+				invenmenu.visible = false
+				equipmenu.wep_dropdown.grab_focus()
+				return
+			2:
+				turn_state = 1
+				menu_state = 0
+				equipmenu.visible = false
+				return
+	if event.is_action_pressed("Inventory"):
+		get_viewport().set_input_as_handled()
+		match menu_state:
+			0:
+				turn_state = 0
+				menu_state = 1
+				invenmenu.visible = true
+				invenmenu.itemlist.grab_focus()
+				return
+			1: 
+				turn_state = 1
+				menu_state = 0
+				invenmenu.visible = false
+				return
+			2:
+				menu_state = 1
+				equipmenu.visible = false
+				invenmenu.visible = true
+				return
+	
+	if event.is_action("Escape"):
+		get_viewport().set_input_as_handled()
+		if menu_state == 2:
+			menu_state = 0
+			turn_state = 1
+			equipmenu.visible = false
+			return
+		match menu_state:
+			1:
+				turn_state = 1
+				menu_state = 0
+				invenmenu.visible = false
+				return
+			2:
+				turn_state = 1
+				menu_state = 0
+				equipmenu.visible = false
+				return
 
 
 func _on_player_move_player(direction: Vector2i):
@@ -55,26 +129,37 @@ func _on_player_move_player(direction: Vector2i):
 	
 	var new_tile_pos =  tilemap.local_to_map(player.position) + direction
 	var new_trigger = trigger_manager.get_trigger_from_map(new_tile_pos)
-	## if tile has an enemy:
-	var enemy_index = enemy_tile_location_list.find(new_tile_pos)
-	if enemy_index >= 0:
-		enemy_list[enemy_index].take_damage(1)
+	## if attackable enemies:
+	var enemy_indexes: Array[int] = []
+	if direction:
+		for tile in AttackPatterns.get_attacked_tiles(tilemap.local_to_map(player.position), direction,
+			player.get_attack_pattern(), player.get_attack_range()):
+			enemy_indexes.append(enemy_tile_location_list.find(tile))
+	else: enemy_indexes.append(-1)
+	if enemy_indexes.max() >= 0:
+		print(enemy_indexes)
+		for enemy_index in enemy_indexes:
+			if enemy_index >= 0: enemy_list[enemy_index].take_damage(player.stats.atk)
+		
 	elif astar_map.map.get_from_v(new_tile_pos-astar_offset):
 		if new_trigger:
 			match new_trigger.type:
 				"Stair" : 
 					make_new_level()
 					return
-				"Trap" : new_trigger.activate(player)
-				"Chest" : new_trigger.activate(player)
+				"Trap" : 
+					new_trigger.activate(player)
+					trigger_manager.delete_trigger(new_trigger.index)
+				"Chest" : 
+					new_trigger.activate(player)
+					trigger_manager.delete_trigger(new_trigger.index)
 		
 		if turn_state == 1:
+			clear_player_fov()
 			move_entity_to_tile(player, new_tile_pos)
 			player_fov()
 			move_cam_to_player()
-	else: 
-		print("can't move player to ", new_tile_pos, ", not traversable")
-		return
+	else: return
 	turn_state = 2
 	enemy_turn()
 
@@ -99,7 +184,7 @@ func enemy_action(enemy : Enemy, player_tile):
 	match enemy.state:
 		0: return ## if dead, do nothing
 		1: ## if asleep, check whether to wake up or not
-			if Norms.vector2i_l1(tilemap.local_to_map(enemy.position) - player_tile) < 10:
+			if light_map.get_from_coord(tilemap.local_to_map(enemy.position)- astar_offset)-enemy.vision>=0:
 				enemy.state = 2
 			return
 		2: ## if awake, attack the player if in range, else move
@@ -126,6 +211,7 @@ func enemy_action(enemy : Enemy, player_tile):
 		enemy_tile_location_list[enemy.index] = enemy_path[1]
 
 func enemy_attack(enemy: Enemy):
+	player.take_damage(enemy.atk)
 	print("enemy ", enemy, " attacks player!")
 
 func move_cam_to_player():
@@ -143,6 +229,7 @@ func make_new_level():
 	enemy_tile_location_list.resize(0)
 	trigger_manager.reset()
 	
+	
 	## fire up the dungeon generator
 	var dun_gen = DungeonGenerator.new()
 	dun_gen.generate_dungeon(9, 9, 11)
@@ -151,7 +238,10 @@ func make_new_level():
 	dun_gen.define_room_types()
 	var temp_room = rooms[dun_gen.distance_from_center[-1].y]
 	trigger_manager.add_trigger(temp_room.get_center(), "Stair")
-	for i in range(-3,-1):
+	
+	dungeon_depth += 1
+	## Set the chests
+	for i in range(-4,-1):
 		temp_room = rooms[dun_gen.distance_from_center[i].y]
 		trigger_manager.add_trigger(temp_room.get_center(), "Chest")
 	
@@ -161,17 +251,18 @@ func make_new_level():
 		DungeonGenerator.DUN_DICT["Interior"]["Stair_UP"])
 	
 	
-	## set the pathfinding map
+	## set the pathfinding map and light map
 	var tilemap_rect = tilemap.get_used_rect()
 	for x in range(tilemap_rect.position.x, tilemap_rect.end.x + 1):
 		for y in range(tilemap_rect.position.y, tilemap_rect.end.y + 1):
-			tilemap.set_cell(SHADOW_LAYER, Vector2i(x,y), 0, SHADOW, 5)
+			tilemap.set_cell(SHADOW_LAYER, Vector2i(x,y), 0, SHADOW, 1)
 	astar_map.map = dun_gen.get_astar_map(tilemap_rect)
 	astar_offset = tilemap_rect.position
 	light_map.clear()
 	light_map.resize(tilemap_rect.size.y, tilemap_rect.size.x)
 	player_fov()
 	turn_state = 1
+	hud.dungeon_depth_label.text = str(dungeon_depth)
 
 
 func pathfinder(start : Vector2i, end : Vector2i)->Array[Vector2i]:
@@ -210,7 +301,7 @@ func spawn_random_enemy():
 		var random_room_tile = Vector2i(randi_range(random_room.position.x+1,random_room.end.x -2), 
 			randi_range(random_room.position.y+1,random_room.end.y -2))
 		if enemy_tile_location_list.has(random_room_tile): continue
-		spawn_enemy(random_room_tile)
+		spawn_enemy(random_room_tile, Data.ENEMY_GROUPS[((dungeon_depth-1)%8)/2].pick_random())
 		b = false
 
 func neighbors_and_weights(source : Vector2i, location: Vector2i)->Array:
@@ -247,7 +338,9 @@ func neighbors_and_weights(source : Vector2i, location: Vector2i)->Array:
 func calc_fov(source: Vector2i, range: Vector2i):
 	
 	var set_light_map = func(loc: Vector2i, light: int):
-		light_map.set_at_coord(loc- astar_offset, light)
+		light_map.set_at_coord(loc - astar_offset, light)
+	var add_light_map = func(loc: Vector2i, light: int):
+		light_map.add_at_coord(loc- astar_offset, light)
 	var get_light_map = func(loc: Vector2i)->int:
 		return light_map.get_from_coord(loc - astar_offset)
 	var get_walkable = func(loc: Vector2i)->bool:
@@ -267,21 +360,16 @@ func calc_fov(source: Vector2i, range: Vector2i):
 		var next_frontier : Array[Vector2i] = []
 		for i in frontier.size():
 			var next = frontier.pop_back()
-			
-			var next_neighbors_weights = neighbors_and_weights(source, next)
-			for neighbor_weight in next_neighbors_weights:
+			var next_light = get_light_map.call(next)
+			for neighbor_weight in neighbors_and_weights(source, next):
 				var abs_dif = (source - neighbor_weight[0]).abs()
 				if abs_dif.x > range.x or abs_dif.y > range.y: continue
-				var lightval = get_light_map.call(next)/neighbor_weight[1]
+				var lightval = next_light/neighbor_weight[1]
 				if lightval <= 0: continue
 				if next_frontier.has(neighbor_weight[0]):
-					print(get_light_map.call(neighbor_weight[0]))
-					set_light_map.call(neighbor_weight[0], 
-						get_light_map.call(neighbor_weight[0])+ lightval)
-					print(get_light_map.call(neighbor_weight[0]))
+					add_light_map.call(neighbor_weight[0], lightval)
 				else:
-					set_light_map.call(neighbor_weight[0], 
-						get_light_map.call(neighbor_weight[0])+ lightval)
+					add_light_map.call(neighbor_weight[0], lightval)
 					if get_walkable.call(neighbor_weight[0]):
 						next_frontier.append(neighbor_weight[0])
 		frontier = next_frontier.duplicate()
@@ -289,20 +377,49 @@ func calc_fov(source: Vector2i, range: Vector2i):
 func player_fov():
 	var player_tile = tilemap.local_to_map(player.position)
 	calc_fov(player_tile, player.vision_range)
-	var player_vision_rect = Rect2i(player_tile - player.vision_range, player.vision_range*2 + Vector2i.ONE)
+	var player_vision_rect = Rect2i(player_tile - player.vision_range, player.vision_range*2)
+	for x in range(player_vision_rect.position.x, player_vision_rect.end.x + 1):
+		for y in range(player_vision_rect.position.y, player_vision_rect.end.y + 1):
+			var tile_loc = Vector2i(x,y) - astar_offset
+			var lightval = light_map.get_from_coord(tile_loc)
+			#light_map.set_at_coord(tile_loc, 0)
+			tilemap.set_cell(SHADOW_LAYER, Vector2i(x,y), 0, SHADOW, lightval+1)
+
+
+func clear_player_fov():
+	var player_tile = tilemap.local_to_map(player.position)
+	var player_vision_rect = Rect2i(player_tile - player.vision_range, player.vision_range*2)
 	for x in range(player_vision_rect.position.x, player_vision_rect.end.x + 1):
 		for y in range(player_vision_rect.position.y, player_vision_rect.end.y + 1):
 			var tile_loc = Vector2i(x,y) - astar_offset
 			var lightval = light_map.get_from_coord(tile_loc)
 			light_map.set_at_coord(tile_loc, 0)
-			tilemap.set_cell(SHADOW_LAYER, Vector2i(x,y), 0, SHADOW, lightval+1)
+			if lightval:pass
+			tilemap.set_cell(SHADOW_LAYER, Vector2i(x,y), 0, SHADOW, 1)
 
+func connect_player_hb_hud():
+	player.connect_health_signals(hud.update_health, hud.update_max_health)
 
+func connect_player_inventory():
+	player.connect_inventory_signal(_on_player_inventory_changed)
 
+func _on_player_inventory_changed():
+	print("update invetory stuff")
+	invenmenu.update_inventory(player.inventory)
+	equipmenu.update_dropdowns(player.inventory, player.equipment)
 
+func _on_equip_menu_equip(item):
+	player.equipment.equip_item(item)
+	hud.update_wep_textrect(equipmenu.wep_dropdown.get_item_icon(equipmenu.wep_dropdown.get_selected_id()))
 
-
-
-
+func _on_player_died():
+	active = false
+	turn_state = 0
+	player.prepare_pc()
+	hud.update_wep_textrect(null)
+	dungeon_depth = 0
+	make_new_level()
+	turn_state = 1
+	active = true
 
 

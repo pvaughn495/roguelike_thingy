@@ -6,6 +6,8 @@ class_name Enemy
 var atk : int
 var attack_range = 1
 var stunned_turns = 0
+var vision = 4
+
 
 ## used for book keeping, usefull for letting main know what to get rid when queue_free()
 ## is used without having to use search().
@@ -31,6 +33,7 @@ func set_enemy_type(type_name: String):
 	var enemy_type_dict = Data.ENEMIES[type_name]
 	region_rect.position = 9.0*Vector2(enemy_type_dict["Atlas_Coord"])
 	atk = enemy_type_dict["Atk"]
+	vision = enemy_type_dict["Vision"]
 	health.set_max_health(enemy_type_dict["HP"])
 	health.set_health(enemy_type_dict["HP"])
 

@@ -42,8 +42,15 @@ func set_at_ij(i:int, j:int, val : int):
 	if i < 0 or i >= num_rows or j < 0 or j >= num_cols: return
 	contents[ij_to_index(i,j)] = val
 
+func add_at_ij(i:int, j:int, val: int)->void:
+	if i < 0 or i >= num_rows or j < 0 or j >= num_cols: return
+	contents[ij_to_index(i,j)] += val
+
 func set_at_coord(coord : Vector2i, val : int):
 	set_at_ij(coord.y, coord.x, val)
+
+func add_at_coord(coord: Vector2i, val: int)->void:
+	add_at_ij(coord.y, coord.x, val)
 
 func get_neighbors_from_coord(coord: Vector2i)->Array[int]:
 	var neighbors : Array[int] = []

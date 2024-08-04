@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=3 uid="uid://b1x8kh2qvj8o4"]
+
+[ext_resource type="Texture2D" uid="uid://codbvshbqm3fc" path="res://Art/kenney_micro-roguelike/Tiles/Monochrome/tile_0101.png" id="1_bdkef"]
+
+[node name="PatricleTest" type="Node2D"]
+
+[node name="CPUParticles2D" type="CPUParticles2D" parent="."]
+emitting = false
+amount = 10
+explosiveness = 1.0
+lifetime_randomness = 0.75
+texture = ExtResource("1_bdkef")
+emission_shape = 3
+emission_rect_extents = Vector2(20, 1)
+spread = 139.09
+gravity = Vector2(0, 200)
+initial_velocity_min = 40.0
+initial_velocity_max = 40.0
+angular_velocity_max = 100.0
+color = Color(0.77, 0.0308, 0.0308, 0.929412)

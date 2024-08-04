@@ -1,0 +1,132 @@
+[gd_scene load_steps=6 format=3 uid="uid://csslc1j3tkkot"]
+
+[ext_resource type="Theme" uid="uid://c8vtm200tbpue" path="res://_Scenes/UI/menutheme.tres" id="1_1ddu6"]
+[ext_resource type="Texture2D" uid="uid://c208lrwlgrcf3" path="res://Art/kenney_micro-roguelike/Tiles/Colored/tile_0102.png" id="1_bdy7f"]
+[ext_resource type="Script" path="res://_Scenes/UI/HUD.gd" id="1_hcall"]
+[ext_resource type="Texture2D" uid="uid://dmrymd64mo3co" path="res://Art/kenney_micro-roguelike/Tiles/Colored/tile_0131.png" id="3_drowf"]
+[ext_resource type="Texture2D" uid="uid://dgyger2jffmep" path="res://Art/kenney_micro-roguelike/Tiles/Colored/tile_0135.png" id="4_2prk8"]
+
+[node name="Hud" type="Control" node_paths=PackedStringArray("dungeon_depth_label", "wep_textrect")]
+layout_mode = 3
+anchors_preset = 0
+theme = ExtResource("1_1ddu6")
+script = ExtResource("1_hcall")
+dungeon_depth_label = NodePath("CanvasLayer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer2/DunDepLabel")
+wep_textrect = NodePath("CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer/PanelContainer/TextureRect")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_1ddu6")
+
+[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/VBoxContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer/VBoxContainer/PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 11.75
+
+[node name="HealthBox" type="HBoxContainer" parent="CanvasLayer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_constants/separation = 1
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer/HealthBox"]
+layout_mode = 2
+texture = ExtResource("1_bdy7f")
+expand_mode = 2
+stretch_mode = 4
+
+[node name="TextureRect2" type="TextureRect" parent="CanvasLayer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer/HealthBox"]
+layout_mode = 2
+texture = ExtResource("1_bdy7f")
+expand_mode = 2
+stretch_mode = 4
+
+[node name="TextureRect3" type="TextureRect" parent="CanvasLayer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer/HealthBox"]
+layout_mode = 2
+texture = ExtResource("1_bdy7f")
+expand_mode = 2
+stretch_mode = 4
+
+[node name="TextureRect4" type="TextureRect" parent="CanvasLayer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer/HealthBox"]
+layout_mode = 2
+texture = ExtResource("1_bdy7f")
+expand_mode = 2
+stretch_mode = 4
+
+[node name="TextureRect5" type="TextureRect" parent="CanvasLayer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer/HealthBox"]
+layout_mode = 2
+texture = ExtResource("1_bdy7f")
+expand_mode = 2
+stretch_mode = 4
+
+[node name="PanelContainer2" type="PanelContainer" parent="CanvasLayer/VBoxContainer/PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DunDepLabel" type="Label" parent="CanvasLayer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer2"]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_font_sizes/font_size = 18
+text = "1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PanelContainer2" type="PanelContainer" parent="CanvasLayer/VBoxContainer"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 6.0
+
+[node name="PanelContainer3" type="PanelContainer" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/VBoxContainer/PanelContainer3"]
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer/PanelContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+expand_mode = 2
+stretch_mode = 4
+
+[node name="PanelContainer2" type="PanelContainer" parent="CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer/PanelContainer2"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 4
+texture = ExtResource("3_drowf")
+expand_mode = 2
+stretch_mode = 4
+
+[node name="PanelContainer3" type="PanelContainer" parent="CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer/PanelContainer3"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 4
+texture = ExtResource("4_2prk8")
+expand_mode = 2
+stretch_mode = 4

@@ -1,0 +1,63 @@
+[gd_scene load_steps=3 format=3 uid="uid://bqkebe2nyp6qk"]
+
+[ext_resource type="Script" path="res://_Scenes/UI/EscMenu.gd" id="1_bm10w"]
+[ext_resource type="Theme" uid="uid://c8vtm200tbpue" path="res://_Scenes/UI/menutheme.tres" id="1_yin14"]
+
+[node name="EscMenu" type="Control"]
+texture_filter = 1
+layout_mode = 3
+anchors_preset = 0
+theme = ExtResource("1_yin14")
+script = ExtResource("1_bm10w")
+
+[node name="PopupMenu" type="PopupMenu" parent="."]
+transparent_bg = true
+title = "Pause Menu"
+initial_position = 1
+size = Vector2i(154, 132)
+visible = true
+theme = ExtResource("1_yin14")
+hide_on_item_selection = false
+hide_on_checkable_item_selection = false
+item_count = 4
+item_0/text = "Return"
+item_0/id = 0
+item_1/text = "Save/Exit"
+item_1/id = 1
+item_2/text = "Settings"
+item_2/id = 2
+item_3/text = "Save/Quit"
+item_3/id = 3
+
+[node name="HBoxContainer" type="VBoxContainer" parent="PopupMenu"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme = ExtResource("1_yin14")
+
+[node name="Button" type="Button" parent="PopupMenu/HBoxContainer"]
+layout_mode = 2
+text = "Return"
+
+[node name="Button2" type="Button" parent="PopupMenu/HBoxContainer"]
+layout_mode = 2
+text = "Save/Quit"
+
+[node name="Button3" type="Button" parent="PopupMenu/HBoxContainer"]
+layout_mode = 2
+text = "Settings"
+
+[node name="Button4" type="Button" parent="PopupMenu/HBoxContainer"]
+layout_mode = 2
+text = "Save/Exit"

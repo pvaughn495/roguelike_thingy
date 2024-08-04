@@ -1,0 +1,57 @@
+[gd_scene load_steps=5 format=3 uid="uid://cddnajvsljufj"]
+
+[ext_resource type="Script" path="res://_Scenes/UI/InvenMenu.gd" id="1_2wjy5"]
+[ext_resource type="Theme" uid="uid://c8vtm200tbpue" path="res://_Scenes/UI/menutheme.tres" id="1_cptw4"]
+[ext_resource type="Texture2D" uid="uid://dyq6kd5cmq8f5" path="res://Art/atlastileset.tres" id="3_021xj"]
+[ext_resource type="Texture2D" uid="uid://b4efyienmuncl" path="res://Art/kenney_micro-roguelike/Tilemap/colored_tilemap.png" id="3_348rm"]
+
+[node name="InvenMenu" type="Control" node_paths=PackedStringArray("itemlist")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_cptw4")
+script = ExtResource("1_2wjy5")
+itemlist = NodePath("VBoxContainer/PanelContainer2/MarginContainer/ItemList")
+texture = ExtResource("3_348rm")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="VBoxContainer/PanelContainer"]
+layout_mode = 2
+text = "Inventory"
+horizontal_alignment = 1
+
+[node name="PanelContainer2" type="PanelContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 5.0
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/PanelContainer2"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="ItemList" type="ItemList" parent="VBoxContainer/PanelContainer2/MarginContainer"]
+layout_mode = 2
+allow_search = false
+item_count = 1
+max_columns = 2
+same_column_width = true
+fixed_icon_size = Vector2i(16, 16)
+item_0/text = "None"
+item_0/icon = ExtResource("3_021xj")

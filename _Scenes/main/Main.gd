@@ -8,9 +8,12 @@ const SHADOW_LAYER = 3
 @export var tilemap : TileMap
 @export var camera : Camera2D
 @export var enemy_scene : PackedScene
+
+@export_category("UI")
 @export var hud : HUD
 @export var equipmenu : EquipMenu
 @export var invenmenu : InventoryMenu
+@export var rangedmenu : RangedActionUI
 
 
 var astar_offset : Vector2i
@@ -32,7 +35,7 @@ var dungeon_depth : int
 
 
 var turn_state = 0 #0: system, 1: player, 2: enemy
-var menu_state = 0 #0: no menu, 1. inventory, 2: equipment
+var menu_state = 0 #0: no menu, 1. inventory, 2: equipment, 3: ranged
 var active = false
 
 # Called when the node enters the scene tree for the first time.
@@ -40,6 +43,11 @@ func _ready():
 	dungeon_depth = 0
 	make_new_level()
 	equipmenu.equipped_item.connect(_on_equip_menu_equip)
+	invenmenu.equip_item.connect(_on_equip_menu_equip)
+	invenmenu.consume_item.connect(_on_inventory_consume)
+	invenmenu.cast_item.connect(_on_inventory_cast)
+	rangedmenu.get_valid_targets.connect(get_valid_range_target_tiles)
+	rangedmenu.spell_cast.connect(_on_ranged_ui_cast)
 	player.stats_changed.connect(equipmenu.update_stats)
 	player.died.connect(_on_player_died)
 	connect_player_hb_hud()
@@ -84,6 +92,7 @@ func _input(event: InputEvent):
 				menu_state = 1
 				invenmenu.visible = true
 				invenmenu.itemlist.grab_focus()
+				invenmenu.itemlist.select(0)
 				return
 			1: 
 				turn_state = 1
@@ -94,15 +103,12 @@ func _input(event: InputEvent):
 				menu_state = 1
 				equipmenu.visible = false
 				invenmenu.visible = true
+				invenmenu.itemlist.grab_focus()
+				invenmenu.itemlist.select(0)
 				return
 	
 	if event.is_action("Escape"):
 		get_viewport().set_input_as_handled()
-		if menu_state == 2:
-			menu_state = 0
-			turn_state = 1
-			equipmenu.visible = false
-			return
 		match menu_state:
 			1:
 				turn_state = 1
@@ -114,6 +120,12 @@ func _input(event: InputEvent):
 				menu_state = 0
 				equipmenu.visible = false
 				return
+			3:
+				menu_state = 0
+				turn_state = 1
+				rangedmenu.visible = false
+				rangedmenu.reset()
+				rangedmenu.process_mode = Node.PROCESS_MODE_DISABLED
 
 
 func _on_player_move_player(direction: Vector2i):
@@ -137,7 +149,9 @@ func _on_player_move_player(direction: Vector2i):
 			enemy_indexes.append(enemy_tile_location_list.find(tile))
 	else: enemy_indexes.append(-1)
 	if enemy_indexes.max() >= 0:
-		print(enemy_indexes)
+		enemy_indexes.sort()
+		enemy_indexes.reverse()
+		print(enemy_indexes, ", # enemy idx ", enemy_indexes.size(), ", # enemy loc ", enemy_tile_location_list.size())
 		for enemy_index in enemy_indexes:
 			if enemy_index >= 0: enemy_list[enemy_index].take_damage(player.stats.atk)
 		
@@ -165,7 +179,6 @@ func _on_player_move_player(direction: Vector2i):
 
 
 func move_entity_to_tile(entity : Node2D, new_tile_pos: Vector2i):
-	if entity == player: print("Player moved to ", new_tile_pos)
 	entity.position = tilemap.map_to_local(new_tile_pos) #+ TILE_CENTER_OFFSET
 
 func enemy_turn():
@@ -213,6 +226,42 @@ func enemy_action(enemy : Enemy, player_tile):
 func enemy_attack(enemy: Enemy):
 	player.take_damage(enemy.atk)
 	print("enemy ", enemy, " attacks player!")
+
+func get_enemy_tiles_in_range(search_range: int, nearest : bool = false)->Array[Vector2i]:
+	var player_tile = tilemap.local_to_map(player.position)
+	var good_list : Array[Vector2i] = []
+	for tile in enemy_tile_location_list:
+		if Norms.vector2i_l1(player_tile - tile) <= search_range:
+			good_list.append(tile)
+	print(good_list, player_tile)
+	if good_list.size() <= 1: return good_list
+	else:
+		good_list.sort_custom(func(tile1: Vector2i, tile2: Vector2i)->bool:
+			if Norms.vector2i_l1(player_tile - tile2) < Norms.vector2i_l1(player_tile - tile1): return false
+			else: return true)
+		if nearest:
+			good_list.resize(1)
+			return good_list
+		return good_list
+
+func get_ranged_los_tiles(search_range:int)->Array[Vector2i]:
+	var good_tiles : Array[Vector2i] = []
+	var player_tile = tilemap.local_to_map(player.position)
+	for x in range(-search_range, search_range + 1):
+		for y in range(-search_range, search_range + 1):
+			if abs(x) + abs(y) > search_range: continue
+			var next = Vector2i(x,y)
+			if (light_map.get_from_coord(next + player_tile - astar_offset)>=4 and 
+			astar_map.map.get_from_v(next + player_tile - astar_offset)):
+				good_tiles.append(next)
+	
+	return good_tiles
+
+func get_valid_range_target_tiles(search_range: int, select_tiles: bool, nearest : bool = false):
+	if select_tiles:
+		rangedmenu.set_tiles_and_emit(get_ranged_los_tiles(search_range))
+	else:
+		rangedmenu.set_tiles_and_emit(get_enemy_tiles_in_range(search_range, nearest))
 
 func move_cam_to_player():
 	var tween = create_tween()
@@ -284,6 +333,9 @@ func spawn_enemy(tile_location :Vector2i, enemy_type : String = "Rat"):
 	enemy_list.append(new_enemy)
 	enemy_tile_location_list.append(tile_location)
 	new_enemy.dead.connect(del_enemy)
+
+func _on_enemy_died(enemy_index : int):
+	call_deferred("del_enemy", enemy_index)
 
 func del_enemy(enemy_index : int):
 	## book keeping for the list of enemies and their locations
@@ -411,6 +463,33 @@ func _on_player_inventory_changed():
 func _on_equip_menu_equip(item):
 	player.equipment.equip_item(item)
 	hud.update_wep_textrect(equipmenu.wep_dropdown.get_item_icon(equipmenu.wep_dropdown.get_selected_id()))
+
+func _on_inventory_consume(item: Item):
+	player.consume_item(item)
+
+func _on_inventory_cast(item: Item):
+	menu_state = 3
+	invenmenu.visible = false
+	rangedmenu.process_mode = Node.PROCESS_MODE_INHERIT
+	rangedmenu.prepare_ui(tilemap.local_to_map(player.position), item)
+	rangedmenu.visible = true
+
+func _on_ranged_ui_cast(item: Item, affected_tiles: Array[Vector2i]):
+	var damage = Data.ITEMS[item.item_class]["Atk"]
+	var enemy_idices = affected_tiles.map(func(a:Vector2i): return enemy_tile_location_list.find(a))
+	enemy_idices.sort()
+	enemy_idices.reverse()
+	for enemy_idx in enemy_idices:
+		if enemy_idx >= 0:
+			enemy_list[enemy_idx].take_damage(damage)
+	
+	player.inventory.del_item_from_bag(item.bag_index)
+	rangedmenu.reset()
+	rangedmenu.visible = false
+	rangedmenu.process_mode = Node.PROCESS_MODE_DISABLED
+	menu_state = 0
+	turn_state = 1
+	player.move(Vector2i.ZERO)
 
 func _on_player_died():
 	active = false

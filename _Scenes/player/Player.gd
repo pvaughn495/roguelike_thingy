@@ -29,17 +29,23 @@ func prepare_pc():
 	health.set_max_health(10)
 	health.set_health(10)
 	var wep = Item.new()
-	wep.bag_index = 0
 	wep.item_class = &"Axe"
 	inventory.add_item_to_bag(wep)
 	var wep2 = Item.new()
-	wep2.bag_index = 0
 	wep2.item_class = &"Sword"
 	inventory.add_item_to_bag(wep2)
 	var potion = Item.new()
-	potion.bag_index = 1
 	potion.item_class = "Potion"
 	inventory.add_item_to_bag(potion)
+	var scroll1 = Item.new()
+	scroll1.item_class = "Fireball"
+	inventory.add_item_to_bag(scroll1)
+	var scroll2 = Item.new()
+	scroll2.item_class = "FairyFire"
+	inventory.add_item_to_bag(scroll2)
+	var scroll3 = Item.new()
+	scroll3.item_class = "Missile"
+	inventory.add_item_to_bag(scroll3)
 	stats.update_stats(equipment.get_stats())
 
 
@@ -115,3 +121,21 @@ func handle_equipment_change(equiped_item: Item, unequiped_item: Item):
 
 func collect_item(item: Item):
 	inventory.add_item_to_bag(item)
+
+func consume_item(item: Item):
+	if Data.ITEMS[item.item_class]["Type"] != "Consumable":
+		print("Error: attempting to consume ", item.item_class)
+		return
+	
+	var heal_amt = Data.ITEMS[item.item_class].get("Heal", 0)
+	heal_amt += item.modifiers.get("Heal", 0)
+	
+	if heal_amt > 0:
+		health.heal(heal_amt)
+	
+	inventory.del_item_from_bag(item.bag_index)
+
+
+
+
+

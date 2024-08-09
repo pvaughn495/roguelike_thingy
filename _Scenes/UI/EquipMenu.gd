@@ -8,7 +8,7 @@ class_name EquipMenu
 @export var wep_dropdown : OptionButton
 @export var arm_dropdown : OptionButton
 @export var ring_dropdown : OptionButton
-@export var cons_dropdown : OptionButton
+@export var shld_dropdown : OptionButton
 
 @export_category("Stats Labels")
 @export var atk_label : Label
@@ -16,12 +16,14 @@ class_name EquipMenu
 @export var res_label : Label
 
 var drop_dict := {"Weapon" = wep_dropdown, "Armor" = arm_dropdown, "Ring" = ring_dropdown,
-	"Consumable" = cons_dropdown}
+	"Consumable" = shld_dropdown}
 
 signal equipped_item
 
 func _ready():
 	wep_dropdown.item_selected.connect(equip_item.bind(wep_dropdown))
+	arm_dropdown.item_selected.connect(equip_item.bind(arm_dropdown))
+	ring_dropdown.item_selected.connect(equip_item.bind(ring_dropdown))
 	clear_dropdowns()
 
 
@@ -32,7 +34,7 @@ func clear_dropdowns():
 	wep_dropdown.clear()
 	arm_dropdown.clear()
 	ring_dropdown.clear()
-	cons_dropdown.clear()
+	shld_dropdown.clear()
 
 func set_item(dropdown: OptionButton, item_index: int, item_class : String):
 	var atlas = AtlasTexture.new()
@@ -62,13 +64,14 @@ func update_dropdowns(inventory : Inventory, equipment: Equipment):
 	add_item(wep_dropdown, equipment.weapon_slot)
 	add_item(arm_dropdown, equipment.armor_slot)
 	add_item(ring_dropdown, equipment.ring_slot)
+	add_item(shld_dropdown, equipment.shield_slot)
 	
 	for item in inventory.bag_items:
 		match Data.ITEMS[item.item_class]["Type"]:
 			"Weapon": add_item(wep_dropdown, item)
 			"Armor": add_item(arm_dropdown, item)
 			"Ring": add_item(ring_dropdown, item)
-			"Consumable": pass
+			"Shield": add_item(shld_dropdown, item)
 
 func equip_item(drop_item_idx : int, dropdown: OptionButton):
 	var item_metadata = dropdown.get_item_metadata(drop_item_idx)
@@ -77,6 +80,7 @@ func equip_item(drop_item_idx : int, dropdown: OptionButton):
 func update_stats(stats: CharacterStats):
 	atk_label.text = "Atk " + str(stats.atk)
 	arm_label.text = "Arm " + str(stats.arm)
+	res_label.text = "Res " + str(stats.res)
 
 
 

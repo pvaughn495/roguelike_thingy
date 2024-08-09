@@ -16,7 +16,7 @@ curve = SubResource("Curve_ubkue")
 atlas = ExtResource("6_mygrt")
 region = Rect2(63, 36, 8, 8)
 
-[node name="EquipMenu" type="Control" node_paths=PackedStringArray("wep_dropdown", "arm_dropdown", "ring_dropdown", "cons_dropdown", "atk_label", "arm_label", "res_label")]
+[node name="EquipMenu" type="Control" node_paths=PackedStringArray("wep_dropdown", "arm_dropdown", "ring_dropdown", "shld_dropdown", "atk_label", "arm_label", "res_label")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -29,7 +29,7 @@ texture = ExtResource("6_mygrt")
 wep_dropdown = NodePath("MarginContainer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer2/HBoxContainer/PanelContainer2/VBoxContainer/OptionButton2")
 arm_dropdown = NodePath("MarginContainer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer2/HBoxContainer/PanelContainer2/VBoxContainer/OptionButton3")
 ring_dropdown = NodePath("MarginContainer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer2/HBoxContainer/PanelContainer2/VBoxContainer/OptionButton4")
-cons_dropdown = NodePath("MarginContainer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer2/HBoxContainer/PanelContainer2/VBoxContainer/OptionButton5")
+shld_dropdown = NodePath("MarginContainer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer2/HBoxContainer/PanelContainer2/VBoxContainer/OptionButton5")
 atk_label = NodePath("MarginContainer/VBoxContainer/PanelContainer2/HBoxContainer/Label")
 arm_label = NodePath("MarginContainer/VBoxContainer/PanelContainer2/HBoxContainer/Label2")
 res_label = NodePath("MarginContainer/VBoxContainer/PanelContainer2/HBoxContainer/Label3")
@@ -114,24 +114,32 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_override_font_sizes/font_size = 18
 text = "Weapon"
+horizontal_alignment = 2
+vertical_alignment = 1
 
 [node name="Label2" type="Label" parent="MarginContainer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer2/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_font_sizes/font_size = 18
 text = "Armor"
+horizontal_alignment = 2
+vertical_alignment = 1
 
 [node name="Label3" type="Label" parent="MarginContainer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer2/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_font_sizes/font_size = 18
 text = "Ring"
+horizontal_alignment = 2
+vertical_alignment = 1
 
 [node name="Label4" type="Label" parent="MarginContainer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer2/HBoxContainer/PanelContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_font_sizes/font_size = 18
-text = "Potion"
+text = "Shield"
+horizontal_alignment = 2
+vertical_alignment = 1
 
 [node name="PanelContainer2" type="PanelContainer" parent="MarginContainer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer2/HBoxContainer"]
 layout_mode = 2

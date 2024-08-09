@@ -2,7 +2,7 @@ extends Sprite2D
 class_name Enemy
 
 
-
+var stats : CharacterStats
 var atk : int
 var attack_range = 1
 var stunned_turns = 0

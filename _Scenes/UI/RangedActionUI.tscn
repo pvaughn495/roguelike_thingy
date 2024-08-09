@@ -1,0 +1,46 @@
+[gd_scene load_steps=5 format=3 uid="uid://bhpwsbud4cgwx"]
+
+[ext_resource type="Theme" uid="uid://c8vtm200tbpue" path="res://_Scenes/UI/menutheme.tres" id="1_x8ll2"]
+[ext_resource type="Script" path="res://_Scenes/UI/RangedActionUI.gd" id="2_gl5s8"]
+[ext_resource type="Texture2D" uid="uid://b57h741qqb4re" path="res://Art/kenney_micro-roguelike/Tiles/Monochrome/tile_0097.png" id="3_y0tqv"]
+[ext_resource type="Texture2D" uid="uid://y0lmmxaowytm" path="res://Art/kenney_micro-roguelike/Tiles/Monochrome/tile_0096.png" id="4_428fu"]
+
+[node name="RangedActionUi" type="Control" node_paths=PackedStringArray("reticle", "splash_sprites")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_x8ll2")
+script = ExtResource("2_gl5s8")
+reticle = NodePath("ReticleSprite")
+splash_sprites = NodePath("ReticleSprite/SplashSprites")
+
+[node name="ReticleSprite" type="Sprite2D" parent="."]
+self_modulate = Color(1, 0, 0, 0.490196)
+position = Vector2(160, 90)
+scale = Vector2(2, 2)
+texture = ExtResource("3_y0tqv")
+
+[node name="SplashSprites" type="Node2D" parent="ReticleSprite"]
+
+[node name="Sprite2D" type="Sprite2D" parent="ReticleSprite/SplashSprites"]
+self_modulate = Color(1, 0, 0, 0.498039)
+position = Vector2(8, 0)
+texture = ExtResource("4_428fu")
+
+[node name="Sprite2D2" type="Sprite2D" parent="ReticleSprite/SplashSprites"]
+self_modulate = Color(1, 0, 0, 0.498039)
+position = Vector2(-8, 0)
+texture = ExtResource("4_428fu")
+
+[node name="Sprite2D3" type="Sprite2D" parent="ReticleSprite/SplashSprites"]
+self_modulate = Color(1, 0, 0, 0.498039)
+position = Vector2(0, 8)
+texture = ExtResource("4_428fu")
+
+[node name="Sprite2D4" type="Sprite2D" parent="ReticleSprite/SplashSprites"]
+self_modulate = Color(1, 0, 0, 0.498039)
+position = Vector2(0, -8)
+texture = ExtResource("4_428fu")

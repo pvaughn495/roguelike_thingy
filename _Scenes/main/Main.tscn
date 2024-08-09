@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://bca72tl4qqlsl"]
+[gd_scene load_steps=9 format=3 uid="uid://bca72tl4qqlsl"]
 
 [ext_resource type="Script" path="res://_Scenes/main/Main.gd" id="1_jfq78"]
 [ext_resource type="TileSet" uid="uid://bhalbaoof2no" path="res://Art/dungeon_tileset.tres" id="2_g4n1h"]
@@ -7,8 +7,9 @@
 [ext_resource type="PackedScene" uid="uid://csslc1j3tkkot" path="res://_Scenes/UI/HUD.tscn" id="5_rlbd2"]
 [ext_resource type="PackedScene" uid="uid://lm32do761xf1" path="res://_Scenes/UI/EquipMenu.tscn" id="6_j68y7"]
 [ext_resource type="PackedScene" uid="uid://cddnajvsljufj" path="res://_Scenes/UI/InvenMenu.tscn" id="7_ftaui"]
+[ext_resource type="PackedScene" uid="uid://bhpwsbud4cgwx" path="res://_Scenes/UI/RangedActionUI.tscn" id="8_tneea"]
 
-[node name="Main" type="Node2D" node_paths=PackedStringArray("player", "tilemap", "camera", "hud", "equipmenu", "invenmenu")]
+[node name="Main" type="Node2D" node_paths=PackedStringArray("player", "tilemap", "camera", "hud", "equipmenu", "invenmenu", "rangedmenu")]
 script = ExtResource("1_jfq78")
 player = NodePath("Player")
 tilemap = NodePath("TileMap")
@@ -17,6 +18,7 @@ enemy_scene = ExtResource("2_k2op7")
 hud = NodePath("Hud")
 equipmenu = NodePath("CanvasLayer/EquipMenu")
 invenmenu = NodePath("CanvasLayer/InvenMenu")
+rangedmenu = NodePath("CanvasLayer/RangedActionUi")
 
 [node name="TileMap" type="TileMap" parent="."]
 tile_set = ExtResource("2_g4n1h")
@@ -50,6 +52,10 @@ zoom = Vector2(2, 2)
 visible = false
 
 [node name="InvenMenu" parent="CanvasLayer" instance=ExtResource("7_ftaui")]
+visible = false
+
+[node name="RangedActionUi" parent="CanvasLayer" instance=ExtResource("8_tneea")]
+process_mode = 4
 visible = false
 
 [connection signal="move_player" from="Player" to="." method="_on_player_move_player"]

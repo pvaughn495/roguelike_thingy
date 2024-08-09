@@ -114,12 +114,12 @@ const ITEMS := {
 	"Potion" = {
 		"Atlas" = Vector2i(7,8),
 		"Type" = "Consumable",
-		"Heal" = 2
+		"Heal" = 4
 	},
 	"Food" = {
 		"Atlas" = Vector2i(10,8),
 		"Type" = "Consumable",
-		"Heal" = 1
+		"Heal" = 2
 	},
 	"Sword" = {
 		"Atlas" = Vector2i(6,4),
@@ -175,10 +175,46 @@ const ITEMS := {
 	},
 	"Ring" = {
 		"Atlas" = Vector2i(9,5),
-		"Type" = "Ring"
+		"Type" = "Ring",
+		"Res" = 1
 	},
 	"Key" = {
 		"Atlas" = Vector2i(10,5),
 		"Type" = "Key"
+	},
+	"Fireball" = {
+		"Atlas" = Vector2i(8,8),
+		"Type" = "Spell",
+		"Range" = 6,
+		"Atk" = 3,
+		"Area" = "Orthogonal",
+		"Target" = "Tile"
+	},
+	"Confusion" = {
+		"Atlas" = Vector2i(1,8),
+		"Type" = "Spell",
+		"Range" = 3,
+		"Area" = "Single",
+		"Target" = "Enemy",
+		"Effect" = "Confusion",
+		"Duration" = 2
+	},
+	"Missile" = {
+		"Atlas" = Vector2i(6,8),
+		"Type" = "Spell",
+		"Range" = 7,
+		"Atk" = 3,
+		"Area" = "Single",
+		"Target" = "Enemy"
+	},
+	"FairyFire" = {
+		"Atlas" = Vector2i(4,8),
+		"Type" = "Spell",
+		"Range" = 7,
+		"Atk" = 5,
+		"Area" = "Single",
+		"Target" = "Auto"
+		
 	}
+	
 }

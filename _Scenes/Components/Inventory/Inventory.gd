@@ -3,7 +3,6 @@ class_name Inventory
 
 const MAX_BAG_SPACE = 32
 
-@export var bag_size : int
 @export var bag_items : Array[Item]
 
 signal inventory_changed
@@ -29,3 +28,5 @@ func all_of_type(item_type: StringName):
 		if Data.ITEMS[item.item_class]["Type"] == item_type: return true
 		else: return false)
 
+func get_bag_count()->int:
+	return bag_items.size()

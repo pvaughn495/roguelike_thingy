@@ -2,8 +2,9 @@ extends Trigger
 class_name Chest
 
 @warning_ignore("shadowed_variable")
-func _init(map_location, index):
-	super.set_trigger(map_location, index, "Chest")
+func _init(map_location : Vector2i = Vector2i.ZERO, index: int = 0):
+	if map_location or index:
+		super.set_trigger(map_location, index, "Chest")
 
 func activate(entity = null):
 	if !entity: return

@@ -17,6 +17,7 @@ func _ready():
 	pass
 
 func update_inventory(inventory: Inventory):
+	print(inventory.bag_items.size())
 	itemlist.clear()
 	for item in inventory.bag_items:
 		var atlas = AtlasTexture.new()

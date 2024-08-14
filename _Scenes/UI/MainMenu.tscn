@@ -1,9 +1,14 @@
-[gd_scene load_steps=3 format=3 uid="uid://cq1lpwj0p8vtc"]
+[gd_scene load_steps=5 format=3 uid="uid://cq1lpwj0p8vtc"]
 
 [ext_resource type="Theme" uid="uid://c8vtm200tbpue" path="res://_Scenes/UI/menutheme.tres" id="1_7wcxd"]
 [ext_resource type="Script" path="res://_Scenes/UI/MainMenu.gd" id="1_bqj6i"]
 
-[node name="MainMenu" type="Control"]
+[sub_resource type="Curve" id="Curve_y515b"]
+
+[sub_resource type="CurveTexture" id="CurveTexture_y3vq6"]
+curve = SubResource("Curve_y515b")
+
+[node name="MainMenu" type="Control" node_paths=PackedStringArray("cont_butt", "load_butt", "newgame_butt", "settings_butt", "credits_butt", "butt_container", "load_popup", "new_popup")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -12,6 +17,23 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_7wcxd")
 script = ExtResource("1_bqj6i")
+cont_butt = NodePath("PanelContainer/VBoxContainer/PanelContainer2/VBoxContainer/Button")
+load_butt = NodePath("PanelContainer/VBoxContainer/PanelContainer2/VBoxContainer/Button2")
+newgame_butt = NodePath("PanelContainer/VBoxContainer/PanelContainer2/VBoxContainer/Button3")
+settings_butt = NodePath("PanelContainer/VBoxContainer/PanelContainer2/VBoxContainer/Button4")
+credits_butt = NodePath("PanelContainer/VBoxContainer/PanelContainer2/VBoxContainer/Button5")
+butt_container = NodePath("PanelContainer/VBoxContainer/PanelContainer2/VBoxContainer")
+load_popup = NodePath("LoadPopup")
+new_popup = NodePath("NewPopup")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("CurveTexture_y3vq6")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 layout_mode = 1
@@ -45,6 +67,7 @@ layout_mode = 2
 
 [node name="Button" type="Button" parent="PanelContainer/VBoxContainer/PanelContainer2/VBoxContainer"]
 layout_mode = 2
+disabled = true
 text = "Continue"
 
 [node name="Button2" type="Button" parent="PanelContainer/VBoxContainer/PanelContainer2/VBoxContainer"]
@@ -57,8 +80,44 @@ text = "New Game"
 
 [node name="Button4" type="Button" parent="PanelContainer/VBoxContainer/PanelContainer2/VBoxContainer"]
 layout_mode = 2
+disabled = true
 text = "Settings"
 
 [node name="Button5" type="Button" parent="PanelContainer/VBoxContainer/PanelContainer2/VBoxContainer"]
 layout_mode = 2
+disabled = true
 text = "Credits"
+
+[node name="LoadPopup" type="PopupMenu" parent="."]
+title = "LoadSave"
+initial_position = 1
+size = Vector2i(78, 100)
+theme = ExtResource("1_7wcxd")
+allow_search = false
+item_count = 4
+item_0/text = "Save 1"
+item_0/id = 0
+item_1/text = "Save 2"
+item_1/id = 1
+item_2/text = "Save 3"
+item_2/id = 2
+item_3/text = "Back"
+item_3/id = 3
+
+[node name="NewPopup" type="PopupMenu" parent="."]
+title = "LoadSave"
+initial_position = 1
+size = Vector2i(78, 100)
+theme = ExtResource("1_7wcxd")
+allow_search = false
+item_count = 4
+item_0/text = "Save 1"
+item_0/id = 0
+item_1/text = "Save 2"
+item_1/id = 1
+item_2/text = "Save 3"
+item_2/id = 2
+item_3/text = "Back"
+item_3/id = 3
+
+[connection signal="visibility_changed" from="." to="." method="_on_visibility_changed"]

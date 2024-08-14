@@ -59,6 +59,7 @@ func add_item(dropdown : OptionButton, item : Item):
 	dropdown.set_item_metadata(dropdown.item_count-1, item)
 
 func update_dropdowns(inventory : Inventory, equipment: Equipment):
+	print(inventory.bag_items.size(), " many items in inventory's bag")
 	clear_dropdowns()
 	
 	add_item(wep_dropdown, equipment.weapon_slot)

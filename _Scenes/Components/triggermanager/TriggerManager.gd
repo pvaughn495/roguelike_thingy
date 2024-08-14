@@ -1,12 +1,12 @@
-extends RefCounted
+extends Resource
 class_name TriggerManager
 
-var triggers : Array[Trigger]
-var trigger_map_list : Array[Vector2i]
+@export var triggers : Array[Trigger]
+@export var trigger_map_list : Array[Vector2i]
 var tilemap : TileMap
 
 @warning_ignore("shadowed_variable")
-func _init(tilemap):
+func _init(tilemap: TileMap = null):
 	triggers = []
 	trigger_map_list = []
 	self.tilemap = tilemap
@@ -43,6 +43,19 @@ func add_trigger(map_location, type, args:={}):
 		triggers.append(new_trigger)
 		trigger_map_list.append(map_location)
 
+func load_triggers(_tilemap: TileMap = null)->void:
+	if _tilemap: tilemap = _tilemap
+	for i in triggers.size():
+		var map_location : Vector2i = trigger_map_list[i]
+		var type : String = triggers[i].type
+		match type:
+			"Trap":
+				tilemap.set_cell(1, map_location, 0, DungeonGenerator.DUN_DICT["Interior"]["Trap"])
+			"Chest" : 
+				tilemap.set_cell(1, map_location, 0, DungeonGenerator.DUN_DICT["Interior"]["Chest"])
+			"Stair" :
+				tilemap.set_cell(1, map_location, 0, DungeonGenerator.DUN_DICT["Interior"]["Stair_Down"])
+			_: print("Error, ", self, " invalid trigger type used in add_trigger function.")
 
 func delete_trigger(index: int)->void:
 	tilemap.erase_cell(1, trigger_map_list[index])

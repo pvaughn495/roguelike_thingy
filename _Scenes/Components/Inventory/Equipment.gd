@@ -1,14 +1,14 @@
-extends RefCounted
+extends Resource
 class_name Equipment
 
-var armor_slot: Item
-var weapon_slot: Item
-var ring_slot: Item
-var shield_slot : Item
+@export var armor_slot: Item
+@export var weapon_slot: Item
+@export var ring_slot: Item
+@export var shield_slot : Item
 
 signal equip_changed
 
-func reset_equipment():
+func reset_equipment()->void:
 	armor_slot = null
 	weapon_slot = null
 	ring_slot = null
@@ -36,6 +36,7 @@ func get_stats()->Dictionary:
 	return stat_dict
 
 func equip_armor(new_armor: Item)->Item:
+	if !new_armor: return
 	if new_armor.item_class != "Armor":
 		print("Error: attemping to equip non-armor in armor slot!")
 		return
@@ -45,6 +46,7 @@ func equip_armor(new_armor: Item)->Item:
 	return old_armor
 
 func equip_weapon(new_weapon: Item)->Item:
+	if !new_weapon: return
 	if Data.ITEMS[new_weapon.item_class]["Type"] != "Weapon":
 		print("Error: attemping to equip non-weapon in weapon slot!")
 		return
@@ -54,6 +56,7 @@ func equip_weapon(new_weapon: Item)->Item:
 	return old_weapon
 
 func equip_ring(new_ring: Item)->Item:
+	if !new_ring: return
 	if new_ring.item_class != "Ring":
 		print("Error: attemping to equip non-ring in ring slot!")
 		return
@@ -63,6 +66,7 @@ func equip_ring(new_ring: Item)->Item:
 	return old_ring
 
 func equip_shield(new_shield: Item)->Item:
+	if !new_shield: return
 	if new_shield.item_class != "Shield":
 		print("Error: attemping to equip non-shield in shield slot!")
 		return
@@ -71,8 +75,10 @@ func equip_shield(new_shield: Item)->Item:
 	equip_changed.emit(new_shield, old_shield)
 	return old_shield
 
-func equip_item(item):
+func equip_item(item: Item)->Item:
+	if !item: return null
 	match Data.ITEMS[item.item_class]["Type"]:
-		"Weapon": equip_weapon(item)
-		"Armor": equip_armor(item)
-		"Ring": equip_ring(item)
+		"Weapon": return equip_weapon(item)
+		"Armor": return equip_armor(item)
+		"Ring": return equip_ring(item)
+	return null

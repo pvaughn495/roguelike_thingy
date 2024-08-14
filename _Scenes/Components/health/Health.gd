@@ -1,8 +1,8 @@
 extends Node
 class_name Health
 
-var health: int
-var max_health : int
+@export var health: int
+@export var max_health : int
 
 signal out_of_health
 signal health_changed

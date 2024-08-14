@@ -5,7 +5,7 @@ const INPUT_DELAY = 0.1
 
 @export var health : Health
 
-var vision_range = Vector2i(10, 6)
+const vision_range = Vector2i(10, 6)
 var hold_timer_bool = true
 
 
@@ -20,8 +20,10 @@ signal died
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	equipment.equip_changed.connect(handle_equipment_change)
-	
-	
+
+func reset_player():
+	equipment.reset_equipment()
+	inventory.reset_inventory()
 
 func prepare_pc():
 	equipment.reset_equipment()
@@ -103,14 +105,41 @@ func _on_health_out_of_health():
 	died.emit()
 
 func connect_health_signals(health_change_callable: Callable, max_health_change_callable: Callable):
-	health.health_changed.connect(health_change_callable)
-	health.max_health_changed.connect(max_health_change_callable)
+	var hcc := health.health_changed.get_connections()
+	var mhc := health.max_health_changed.get_connections()
+	if hcc.size() == 0:
+		health.health_changed.connect(health_change_callable)
+	else:
+		if hcc[0]["callable"] != health_change_callable:
+			health.health_changed.disconnect(hcc[0]["callable"])
+			health.health_changed.connect(health_change_callable)
+	if mhc.size() == 0:
+		health.max_health_changed.connect(max_health_change_callable)
+	else:
+		if mhc[0]["callable"] != max_health_change_callable:
+			health.max_health_changed.disconnect(mhc[0]["callable"])
+			health.max_health_changed.connect(max_health_change_callable)
 
 func connect_inventory_signal(inventory_change_callable: Callable):
-	inventory.inventory_changed.connect(inventory_change_callable)
+	var connections := inventory.inventory_changed.get_connections()
+	var already_connected = false
+	for connection in connections:
+		if connection["callable"] != inventory_change_callable:
+			inventory.inventory_changed.disconnect(connection["callable"])
+		else: already_connected = true
+	if !already_connected: inventory.inventory_changed.connect(inventory_change_callable)
 	
 
 func conntect_equipment_signal(equipment_change_callable: Callable):
+	var connections := equipment.equip_changed.get_connections()
+	var already_connected = false
+	for connection in connections:
+		if connection["callable"] != equipment_change_callable:
+			inventory.inventory_changed.disconnect(connection["callable"])
+		else: already_connected = true
+	if !already_connected: equipment.equip_changed.connect(equipment_change_callable)
+	
+	
 	equipment.equip_changed.connect(equipment_change_callable)
 
 func handle_equipment_change(equiped_item: Item, unequiped_item: Item):
@@ -135,7 +164,8 @@ func consume_item(item: Item):
 	
 	inventory.del_item_from_bag(item.bag_index)
 
-
+func get_player_bag_count()->int:
+	return inventory.get_bag_count()
 
 
 

@@ -1,10 +1,10 @@
-extends RefCounted
+extends Resource
 class_name Trigger
 
-var map_location : Vector2i
-var armed : bool
-var index : int
-var type : StringName
+@export var map_location : Vector2i
+@export var armed : bool
+@export var index : int
+@export var type : StringName
 
 
 signal call_trigger

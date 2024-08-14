@@ -14,11 +14,16 @@ const SHADOW_LAYER = 3
 @export var equipmenu : EquipMenu
 @export var invenmenu : InventoryMenu
 @export var rangedmenu : RangedActionUI
+@export var escmenu : EscMenu
+@export var mainmenu : MainMenu
+@export var timermenu : Timer
 
 
 var astar_offset : Vector2i
 var rooms : Array[Rect2i]
+var connections: Array[Vector2i]
 var dungeon_depth : int
+var save_slot : String
 
 
 @onready var enemy_list : Array[Enemy] = []
@@ -35,46 +40,89 @@ var dungeon_depth : int
 
 
 var turn_state = 0 #0: system, 1: player, 2: enemy
-var menu_state = 0 #0: no menu, 1. inventory, 2: equipment, 3: ranged
+var menu_state = 4 #0: no menu, 1. inventory, 2: equipment, 3: ranged, 4: mainmenu, 5: esc menu
 var active = false
 
 # Called when the node enters the scene tree for the first time.
-func _ready():
-	dungeon_depth = 0
-	make_new_level()
-	equipmenu.equipped_item.connect(_on_equip_menu_equip)
-	invenmenu.equip_item.connect(_on_equip_menu_equip)
-	invenmenu.consume_item.connect(_on_inventory_consume)
-	invenmenu.cast_item.connect(_on_inventory_cast)
-	rangedmenu.get_valid_targets.connect(get_valid_range_target_tiles)
-	rangedmenu.spell_cast.connect(_on_ranged_ui_cast)
-	player.stats_changed.connect(equipmenu.update_stats)
-	player.died.connect(_on_player_died)
+func _ready()->void:
+	connect_stuff()
+
+
+func connect_stuff()->void:
+	if !equipmenu.equipped_item.is_connected(_on_equip_menu_equip):
+		equipmenu.equipped_item.connect(_on_equip_menu_equip)
+	if !invenmenu.equip_item.is_connected(_on_equip_menu_equip):
+		invenmenu.equip_item.connect(_on_equip_menu_equip)
+	if !invenmenu.consume_item.is_connected(_on_inventory_consume):
+		invenmenu.consume_item.connect(_on_inventory_consume)
+	if !invenmenu.cast_item.is_connected(_on_inventory_cast):
+		invenmenu.cast_item.connect(_on_inventory_cast)
+	if !rangedmenu.get_valid_targets.is_connected(get_valid_range_target_tiles):
+		rangedmenu.get_valid_targets.connect(get_valid_range_target_tiles)
+	if !rangedmenu.spell_cast.is_connected(_on_ranged_ui_cast):
+		rangedmenu.spell_cast.connect(_on_ranged_ui_cast)
+	if !player.stats_changed.is_connected(equipmenu.update_stats):
+		player.stats_changed.connect(equipmenu.update_stats)
+	if !player.died.is_connected(_on_player_died):
+		player.died.connect(_on_player_died)
 	connect_player_hb_hud()
 	connect_player_inventory()
+	if !mainmenu.new_game.is_connected(new_game):
+		mainmenu.new_game.connect(new_game)
+	if !mainmenu.load_game.is_connected(load_main):
+		mainmenu.load_game.connect(load_main)
+	if !escmenu.return_to_game.is_connected(_on_escape_menu_closed):
+		escmenu.return_to_game.connect(_on_escape_menu_closed)
+	if !escmenu.save_and_menu.is_connected(_on_escape_menu_save_main):
+		escmenu.save_and_menu.connect(_on_escape_menu_save_main)
+	#escmenu.save_and_quit.connect()
+
+
+func load_main(file_name: String)->void:
+	
+	save_slot = file_name
+	clear_level()
+	load_game(file_name)
+	connect_stuff()
+	mainmenu.set_visible(false)
+	turn_state = 1
+	menu_state = 0
+	active = true
+
+func new_game(file_name : String)->void:
+	save_slot = file_name
+	clear_level()
+	make_new_level()
 	player.prepare_pc()
 	turn_state = 1
 	active = true
-	
+	mainmenu.set_visible(false)
+	menu_state = 0
 
-func _physics_process(_delta):
+func _physics_process(_delta)->void:
+	if !active: return
 	if enemy_list.size() < 10+dungeon_depth*2 and active:
 		spawn_random_enemy()
 
-func _input(event: InputEvent):
+func _input(event: InputEvent)->void:
+	if !timermenu.is_stopped(): return
 	if turn_state == 2: return
 	
 	if event.is_action_pressed("Character"):
 		get_viewport().set_input_as_handled()
+		timermenu.start()
 		match menu_state:
 			0:
 				turn_state = 0
 				menu_state = 2
+				print(player.get_player_bag_count(), " items in player's bag")
+				equipmenu.update_dropdowns(player.inventory, player.equipment)
 				equipmenu.visible = true
 				equipmenu.wep_dropdown.grab_focus()
 				return
 			1:
 				menu_state = 2
+				equipmenu.update_dropdowns(player.inventory, player.equipment)
 				equipmenu.visible = true
 				invenmenu.visible = false
 				equipmenu.wep_dropdown.grab_focus()
@@ -84,15 +132,18 @@ func _input(event: InputEvent):
 				menu_state = 0
 				equipmenu.visible = false
 				return
+			_: return
 	if event.is_action_pressed("Inventory"):
 		get_viewport().set_input_as_handled()
+		timermenu.start()
 		match menu_state:
 			0:
 				turn_state = 0
 				menu_state = 1
+				invenmenu.update_inventory(player.inventory)
 				invenmenu.visible = true
 				invenmenu.itemlist.grab_focus()
-				invenmenu.itemlist.select(0)
+				#invenmenu.itemlist.select(0)
 				return
 			1: 
 				turn_state = 1
@@ -102,14 +153,24 @@ func _input(event: InputEvent):
 			2:
 				menu_state = 1
 				equipmenu.visible = false
+				invenmenu.update_inventory(player.inventory)
 				invenmenu.visible = true
 				invenmenu.itemlist.grab_focus()
 				invenmenu.itemlist.select(0)
 				return
+			_: return
 	
 	if event.is_action("Escape"):
+		timermenu.start()
 		get_viewport().set_input_as_handled()
 		match menu_state:
+			0: # open the esc menu
+				timermenu.set_paused(true)
+				turn_state = 0
+				menu_state = 5
+				escmenu.set_visible(true)
+				escmenu.grab_foc()
+				return
 			1:
 				turn_state = 1
 				menu_state = 0
@@ -126,9 +187,15 @@ func _input(event: InputEvent):
 				rangedmenu.visible = false
 				rangedmenu.reset()
 				rangedmenu.process_mode = Node.PROCESS_MODE_DISABLED
+				return
+			4:
+				return
+			5: 
+				return #close the esc menu
 
 
-func _on_player_move_player(direction: Vector2i):
+
+func _on_player_move_player(direction: Vector2i)->void:
 	match turn_state:
 		0: 
 			print("Admin turn, please wait.")
@@ -178,10 +245,10 @@ func _on_player_move_player(direction: Vector2i):
 	enemy_turn()
 
 
-func move_entity_to_tile(entity : Node2D, new_tile_pos: Vector2i):
+func move_entity_to_tile(entity : Node2D, new_tile_pos: Vector2i)->void:
 	entity.position = tilemap.map_to_local(new_tile_pos) #+ TILE_CENTER_OFFSET
 
-func enemy_turn():
+func enemy_turn()->void:
 	if turn_state == 2:
 		turn_state = 1
 	else: 
@@ -193,7 +260,7 @@ func enemy_turn():
 	for enemy in enemies:
 		enemy_action(enemy, player_tile)
 
-func enemy_action(enemy : Enemy, player_tile):
+func enemy_action(enemy : Enemy, player_tile)->void:
 	match enemy.state:
 		0: return ## if dead, do nothing
 		1: ## if asleep, check whether to wake up or not
@@ -223,7 +290,7 @@ func enemy_action(enemy : Enemy, player_tile):
 		move_entity_to_tile(enemy, enemy_path[1])
 		enemy_tile_location_list[enemy.index] = enemy_path[1]
 
-func enemy_attack(enemy: Enemy):
+func enemy_attack(enemy: Enemy)->void:
 	player.take_damage(enemy.atk)
 	print("enemy ", enemy, " attacks player!")
 
@@ -257,19 +324,19 @@ func get_ranged_los_tiles(search_range:int)->Array[Vector2i]:
 	
 	return good_tiles
 
-func get_valid_range_target_tiles(search_range: int, select_tiles: bool, nearest : bool = false):
+func get_valid_range_target_tiles(search_range: int, select_tiles: bool, nearest : bool = false)->void:
 	if select_tiles:
 		rangedmenu.set_tiles_and_emit(get_ranged_los_tiles(search_range))
 	else:
 		rangedmenu.set_tiles_and_emit(get_enemy_tiles_in_range(search_range, nearest))
 
-func move_cam_to_player():
+func move_cam_to_player()->void:
 	var tween = create_tween()
 	tween.set_ease(Tween.EASE_OUT)
 	tween.set_trans(Tween.TRANS_CUBIC)
 	tween.tween_property(camera, "position", player.position, 0.5)
 
-func make_new_level():
+func make_new_level()->void:
 	## clear the old level
 	tilemap.clear()
 	for enemy in enemy_list:
@@ -284,6 +351,7 @@ func make_new_level():
 	dun_gen.generate_dungeon(9, 9, 11)
 	dun_gen.set_dungeon_in_tilemap(tilemap)
 	rooms = dun_gen.rooms.duplicate()
+	connections = dun_gen.connections.duplicate()
 	dun_gen.define_room_types()
 	var temp_room = rooms[dun_gen.distance_from_center[-1].y]
 	trigger_manager.add_trigger(temp_room.get_center(), "Stair")
@@ -324,7 +392,7 @@ func pathfinder(start : Vector2i, end : Vector2i)->Array[Vector2i]:
 	
 	return path
 
-func spawn_enemy(tile_location :Vector2i, enemy_type : String = "Rat"):
+func spawn_enemy(tile_location :Vector2i, enemy_type : String = "Rat")->void:
 	var new_enemy = enemy_scene.instantiate()
 	new_enemy.position = tilemap.map_to_local(tile_location)
 	$Enemies.add_child(new_enemy)
@@ -334,10 +402,10 @@ func spawn_enemy(tile_location :Vector2i, enemy_type : String = "Rat"):
 	enemy_tile_location_list.append(tile_location)
 	new_enemy.dead.connect(del_enemy)
 
-func _on_enemy_died(enemy_index : int):
+func _on_enemy_died(enemy_index : int)->void:
 	call_deferred("del_enemy", enemy_index)
 
-func del_enemy(enemy_index : int):
+func del_enemy(enemy_index : int)->void:
 	## book keeping for the list of enemies and their locations
 	enemy_list.remove_at(enemy_index)
 	enemy_tile_location_list.remove_at(enemy_index)
@@ -345,7 +413,7 @@ func del_enemy(enemy_index : int):
 	for i in range(enemy_index, enemy_list.size()):
 		enemy_list[i].index = i
 
-func spawn_random_enemy():
+func spawn_random_enemy()->void:
 	var b = true
 	while(b):
 		var random_room = rooms.pick_random()
@@ -387,7 +455,7 @@ func neighbors_and_weights(source : Vector2i, location: Vector2i)->Array:
 	return []
 
 @warning_ignore("shadowed_global_identifier")
-func calc_fov(source: Vector2i, range: Vector2i):
+func calc_fov(source: Vector2i, range: Vector2i)->void:
 	
 	var set_light_map = func(loc: Vector2i, light: int):
 		light_map.set_at_coord(loc - astar_offset, light)
@@ -426,7 +494,7 @@ func calc_fov(source: Vector2i, range: Vector2i):
 						next_frontier.append(neighbor_weight[0])
 		frontier = next_frontier.duplicate()
 
-func player_fov():
+func player_fov()->void:
 	var player_tile = tilemap.local_to_map(player.position)
 	calc_fov(player_tile, player.vision_range)
 	var player_vision_rect = Rect2i(player_tile - player.vision_range, player.vision_range*2)
@@ -438,7 +506,7 @@ func player_fov():
 			tilemap.set_cell(SHADOW_LAYER, Vector2i(x,y), 0, SHADOW, lightval+1)
 
 
-func clear_player_fov():
+func clear_player_fov()->void:
 	var player_tile = tilemap.local_to_map(player.position)
 	var player_vision_rect = Rect2i(player_tile - player.vision_range, player.vision_range*2)
 	for x in range(player_vision_rect.position.x, player_vision_rect.end.x + 1):
@@ -449,32 +517,32 @@ func clear_player_fov():
 			if lightval:pass
 			tilemap.set_cell(SHADOW_LAYER, Vector2i(x,y), 0, SHADOW, 1)
 
-func connect_player_hb_hud():
+func connect_player_hb_hud()->void:
 	player.connect_health_signals(hud.update_health, hud.update_max_health)
 
-func connect_player_inventory():
+func connect_player_inventory()->void:
 	player.connect_inventory_signal(_on_player_inventory_changed)
 
-func _on_player_inventory_changed():
+func _on_player_inventory_changed()->void:
 	print("update invetory stuff")
 	invenmenu.update_inventory(player.inventory)
 	equipmenu.update_dropdowns(player.inventory, player.equipment)
 
-func _on_equip_menu_equip(item):
+func _on_equip_menu_equip(item)->void:
 	player.equipment.equip_item(item)
 	hud.update_wep_textrect(equipmenu.wep_dropdown.get_item_icon(equipmenu.wep_dropdown.get_selected_id()))
 
-func _on_inventory_consume(item: Item):
+func _on_inventory_consume(item: Item)->void:
 	player.consume_item(item)
 
-func _on_inventory_cast(item: Item):
+func _on_inventory_cast(item: Item)->void:
 	menu_state = 3
 	invenmenu.visible = false
 	rangedmenu.process_mode = Node.PROCESS_MODE_INHERIT
 	rangedmenu.prepare_ui(tilemap.local_to_map(player.position), item)
 	rangedmenu.visible = true
 
-func _on_ranged_ui_cast(item: Item, affected_tiles: Array[Vector2i]):
+func _on_ranged_ui_cast(item: Item, affected_tiles: Array[Vector2i])->void:
 	var damage = Data.ITEMS[item.item_class]["Atk"]
 	var enemy_idices = affected_tiles.map(func(a:Vector2i): return enemy_tile_location_list.find(a))
 	enemy_idices.sort()
@@ -491,7 +559,7 @@ func _on_ranged_ui_cast(item: Item, affected_tiles: Array[Vector2i]):
 	turn_state = 1
 	player.move(Vector2i.ZERO)
 
-func _on_player_died():
+func _on_player_died()->void:
 	active = false
 	turn_state = 0
 	player.prepare_pc()
@@ -500,5 +568,119 @@ func _on_player_died():
 	make_new_level()
 	turn_state = 1
 	active = true
+
+func save_game(file_name : String)->void:
+	var save = GameSave.new()
+	save.rooms = rooms
+	save.connections = connections
+	save.depth = dungeon_depth
+	save.astar_offset = astar_offset
+	save.astar_map_contents = astar_map.map.contents
+	save.astar_map_dimensions = Vector2i(astar_map.map.num_cols, astar_map.map.num_rows)
+	save.enemy_tile_loc = enemy_tile_location_list
+	save.enemy_health.resize(enemy_list.size())
+	for i in enemy_list.size():
+		save.enemy_health[i] = enemy_list[i].health.get_health()
+	save.enemy_type.resize(enemy_list.size())
+	for i in enemy_list.size():
+		save.enemy_type[i] = enemy_list[i].enemy_type
+	
+	save.trigger_managaer = trigger_manager
+	
+	save.player_location = player.position
+	save.player_health = player.health.get_health()
+	save.player_max_health = player.health.get_max_health()
+	save.player_inventory = player.inventory
+	save.player_equipment = player.equipment
+	
+	save.save_game(file_name)
+
+func load_game(file_name : String)->void:
+	var save := GameSave.load_game(file_name)
+	
+	#set up the dungeon
+	var dun_gen = DungeonGenerator.new()
+	dun_gen.rooms = save.rooms
+	rooms = save.rooms.duplicate()
+	dun_gen.connections = save.connections
+	connections = save.connections.duplicate()
+	dun_gen.set_dungeon_in_tilemap(tilemap)
+	dungeon_depth = save.depth
+	hud.dungeon_depth_label.text = str(dungeon_depth)
+	var map = MatrixB.new(save.astar_map_dimensions.y, save.astar_map_dimensions.x)
+	map.contents = save.astar_map_contents
+	astar_offset = save.astar_offset
+	astar_map.map = map
+	
+	#set up enemies
+	for i in save.enemy_tile_loc.size():
+		spawn_enemy(save.enemy_tile_loc[i], save.enemy_type[i])
+		enemy_list[i].health.set_health(save.enemy_health[i])
+	
+	trigger_manager = save.trigger_managaer
+	trigger_manager.load_triggers(tilemap)
+	#set up player
+	move_entity_to_tile(player, tilemap.local_to_map(save.player_location))
+	#player.inventory = save.player_inventory
+	for item in save.player_inventory.bag_items:
+		player.inventory.add_item_to_bag(item)
+	#player.equipment = save.player_equipment
+	player.equipment.equip_armor(save.player_equipment.armor_slot)
+	player.equipment.equip_weapon(save.player_equipment.weapon_slot)
+	if player.equipment.weapon_slot:
+		hud.update_wep_textrect(equipmenu.wep_dropdown.get_item_icon(equipmenu.wep_dropdown.get_selected_id()))
+	
+	player.equipment.equip_ring(save.player_equipment.ring_slot)
+	player.equipment.equip_shield(save.player_equipment.shield_slot)
+	
+	player.health.set_max_health(save.player_max_health)
+	player.health.set_health(save.player_health)
+	player.stats.update_stats(player.equipment.get_stats())
+	equipmenu.update_dropdowns(player.inventory, player.equipment)
+	equipmenu.update_stats(player.stats)
+	invenmenu.update_inventory(player.inventory)
+	move_cam_to_player()
+	var tilemap_rect = tilemap.get_used_rect()
+	for x in range(tilemap_rect.position.x, tilemap_rect.end.x + 1):
+		for y in range(tilemap_rect.position.y, tilemap_rect.end.y + 1):
+			tilemap.set_cell(SHADOW_LAYER, Vector2i(x,y), 0, SHADOW, 1)
+	astar_map.map = dun_gen.get_astar_map(tilemap_rect)
+	astar_offset = tilemap_rect.position
+	light_map.clear()
+	light_map.resize(tilemap_rect.size.y, tilemap_rect.size.x)
+	player_fov()
+
+func clear_level():
+	dungeon_depth = 0
+	tilemap.clear()
+	for enemy in enemy_list:
+		enemy.queue_free()
+	enemy_list.resize(0)
+	enemy_tile_location_list.resize(0)
+	trigger_manager.reset()
+	player.reset_player()
+	hud.update_wep_textrect(null)
+	rooms.resize(0)
+	connections.resize(0)
+	enemy_list.resize(0)
+	enemy_tile_location_list.resize(0)
+
+func _on_escape_menu_closed()->void:
+	if timermenu.is_paused(): timermenu.set_paused(false)
+	if escmenu.selection : return
+	escmenu.visible = false
+	menu_state = 0
+	turn_state = 1
+
+func _on_escape_menu_save_main()->void:
+	turn_state = 0
+	menu_state = 4
+	save_game(save_slot)
+	mainmenu.set_visible(true)
+
+
+
+
+
 
 

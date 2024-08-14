@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://bca72tl4qqlsl"]
+[gd_scene load_steps=11 format=3 uid="uid://bca72tl4qqlsl"]
 
 [ext_resource type="Script" path="res://_Scenes/main/Main.gd" id="1_jfq78"]
 [ext_resource type="TileSet" uid="uid://bhalbaoof2no" path="res://Art/dungeon_tileset.tres" id="2_g4n1h"]
@@ -8,8 +8,10 @@
 [ext_resource type="PackedScene" uid="uid://lm32do761xf1" path="res://_Scenes/UI/EquipMenu.tscn" id="6_j68y7"]
 [ext_resource type="PackedScene" uid="uid://cddnajvsljufj" path="res://_Scenes/UI/InvenMenu.tscn" id="7_ftaui"]
 [ext_resource type="PackedScene" uid="uid://bhpwsbud4cgwx" path="res://_Scenes/UI/RangedActionUI.tscn" id="8_tneea"]
+[ext_resource type="PackedScene" uid="uid://bqkebe2nyp6qk" path="res://_Scenes/UI/EscMenu.tscn" id="9_67wjf"]
+[ext_resource type="PackedScene" uid="uid://cq1lpwj0p8vtc" path="res://_Scenes/UI/MainMenu.tscn" id="9_kjesd"]
 
-[node name="Main" type="Node2D" node_paths=PackedStringArray("player", "tilemap", "camera", "hud", "equipmenu", "invenmenu", "rangedmenu")]
+[node name="Main" type="Node2D" node_paths=PackedStringArray("player", "tilemap", "camera", "hud", "equipmenu", "invenmenu", "rangedmenu", "escmenu", "mainmenu", "timermenu")]
 script = ExtResource("1_jfq78")
 player = NodePath("Player")
 tilemap = NodePath("TileMap")
@@ -19,6 +21,9 @@ hud = NodePath("Hud")
 equipmenu = NodePath("CanvasLayer/EquipMenu")
 invenmenu = NodePath("CanvasLayer/InvenMenu")
 rangedmenu = NodePath("CanvasLayer/RangedActionUi")
+escmenu = NodePath("CanvasLayer/EscMenu")
+mainmenu = NodePath("CanvasLayer/MainMenu")
+timermenu = NodePath("menutimer")
 
 [node name="TileMap" type="TileMap" parent="."]
 tile_set = ExtResource("2_g4n1h")
@@ -57,5 +62,18 @@ visible = false
 [node name="RangedActionUi" parent="CanvasLayer" instance=ExtResource("8_tneea")]
 process_mode = 4
 visible = false
+
+[node name="EscMenu" parent="CanvasLayer" instance=ExtResource("9_67wjf")]
+visible = false
+offset_left = 212.5
+offset_top = 35.0
+offset_right = 212.5
+offset_bottom = 35.0
+
+[node name="MainMenu" parent="CanvasLayer" instance=ExtResource("9_kjesd")]
+
+[node name="menutimer" type="Timer" parent="."]
+wait_time = 0.25
+one_shot = true
 
 [connection signal="move_player" from="Player" to="." method="_on_player_move_player"]

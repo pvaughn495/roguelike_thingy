@@ -2,11 +2,12 @@ extends Sprite2D
 class_name Enemy
 
 
-var stats : CharacterStats
-var atk : int
-var attack_range = 1
-var stunned_turns = 0
-var vision = 4
+@export var stats : CharacterStats
+@export var atk : int
+@export var attack_range = 1
+@export var stunned_turns = 0
+@export var vision = 4
+@export var enemy_type: String
 
 
 ## used for book keeping, usefull for letting main know what to get rid when queue_free()
@@ -30,6 +31,7 @@ func _on_health_out_of_health():
 	queue_free()
 
 func set_enemy_type(type_name: String):
+	enemy_type = type_name
 	var enemy_type_dict = Data.ENEMIES[type_name]
 	region_rect.position = 9.0*Vector2(enemy_type_dict["Atlas_Coord"])
 	atk = enemy_type_dict["Atk"]

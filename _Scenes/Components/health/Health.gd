@@ -8,7 +8,7 @@ signal out_of_health
 signal health_changed
 signal max_health_changed
 
-func set_max_health(new_max_health: int):
+func set_max_health(new_max_health: int)->void:
 	if new_max_health == max_health: return
 	max_health = max(0, new_max_health)
 	if max_health == 0:
@@ -17,7 +17,10 @@ func set_max_health(new_max_health: int):
 
 func get_max_health()->int: return max_health
 
-func set_health(new_health : int):
+func increase_max_health(val: int)->void:
+	set_max_health(get_max_health()+val)
+
+func set_health(new_health : int)->void:
 	if new_health == health: return
 	health = clamp(new_health, 0, max_health)
 	if health == 0:
@@ -30,4 +33,4 @@ func reduce_health(amount: int)->int:
 	set_health(health - amount)
 	return health
 
-func heal(amount: int): set_health(health + amount)
+func heal(amount: int)->void: set_health(health + amount)

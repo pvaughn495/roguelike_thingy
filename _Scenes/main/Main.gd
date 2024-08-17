@@ -90,6 +90,7 @@ func load_main(file_name: String)->void:
 	active = true
 
 func new_game(file_name : String)->void:
+	player.reset_player()
 	save_slot = file_name
 	clear_level()
 	make_new_level()
@@ -115,7 +116,6 @@ func _input(event: InputEvent)->void:
 			0:
 				turn_state = 0
 				menu_state = 2
-				print(player.get_player_bag_count(), " items in player's bag")
 				equipmenu.update_dropdowns(player.inventory, player.equipment)
 				equipmenu.visible = true
 				equipmenu.wep_dropdown.grab_focus()
@@ -218,7 +218,6 @@ func _on_player_move_player(direction: Vector2i)->void:
 	if enemy_indexes.max() >= 0:
 		enemy_indexes.sort()
 		enemy_indexes.reverse()
-		print(enemy_indexes, ", # enemy idx ", enemy_indexes.size(), ", # enemy loc ", enemy_tile_location_list.size())
 		for enemy_index in enemy_indexes:
 			if enemy_index >= 0: enemy_list[enemy_index].take_damage(player.stats.atk)
 		
@@ -232,7 +231,7 @@ func _on_player_move_player(direction: Vector2i)->void:
 					new_trigger.activate(player)
 					trigger_manager.delete_trigger(new_trigger.index)
 				"Chest" : 
-					new_trigger.activate(player)
+					new_trigger.activate(player, dungeon_depth)
 					trigger_manager.delete_trigger(new_trigger.index)
 		
 		if turn_state == 1:
@@ -292,7 +291,6 @@ func enemy_action(enemy : Enemy, player_tile)->void:
 
 func enemy_attack(enemy: Enemy)->void:
 	player.take_damage(enemy.atk)
-	print("enemy ", enemy, " attacks player!")
 
 func get_enemy_tiles_in_range(search_range: int, nearest : bool = false)->Array[Vector2i]:
 	var player_tile = tilemap.local_to_map(player.position)
@@ -300,7 +298,6 @@ func get_enemy_tiles_in_range(search_range: int, nearest : bool = false)->Array[
 	for tile in enemy_tile_location_list:
 		if Norms.vector2i_l1(player_tile - tile) <= search_range:
 			good_list.append(tile)
-	print(good_list, player_tile)
 	if good_list.size() <= 1: return good_list
 	else:
 		good_list.sort_custom(func(tile1: Vector2i, tile2: Vector2i)->bool:
@@ -393,20 +390,27 @@ func pathfinder(start : Vector2i, end : Vector2i)->Array[Vector2i]:
 	return path
 
 func spawn_enemy(tile_location :Vector2i, enemy_type : String = "Rat")->void:
-	var new_enemy = enemy_scene.instantiate()
+	var new_enemy : Enemy = enemy_scene.instantiate()
 	new_enemy.position = tilemap.map_to_local(tile_location)
 	$Enemies.add_child(new_enemy)
 	new_enemy.index = enemy_list.size()
 	new_enemy.set_enemy_type(enemy_type)
 	enemy_list.append(new_enemy)
 	enemy_tile_location_list.append(tile_location)
-	new_enemy.dead.connect(del_enemy)
+	new_enemy.dead.connect(_on_enemy_died)
+	if dungeon_depth > 5:
+		new_enemy.atk += (dungeon_depth - 5)/2
+		new_enemy.health.increase_max_health((dungeon_depth-6)/2)
+		new_enemy.health.heal((dungeon_depth-6)/2)
 
 func _on_enemy_died(enemy_index : int)->void:
-	call_deferred("del_enemy", enemy_index)
+	player.get_exp(enemy_list[enemy_index].health.get_max_health())
+	#call_deferred("del_enemy", enemy_index)
+	del_enemy(enemy_index)
 
 func del_enemy(enemy_index : int)->void:
 	## book keeping for the list of enemies and their locations
+	
 	enemy_list.remove_at(enemy_index)
 	enemy_tile_location_list.remove_at(enemy_index)
 	## re-index each of the enemies in the list after the deleted entry
@@ -421,8 +425,20 @@ func spawn_random_enemy()->void:
 		var random_room_tile = Vector2i(randi_range(random_room.position.x+1,random_room.end.x -2), 
 			randi_range(random_room.position.y+1,random_room.end.y -2))
 		if enemy_tile_location_list.has(random_room_tile): continue
-		spawn_enemy(random_room_tile, Data.ENEMY_GROUPS[((dungeon_depth-1)%8)/2].pick_random())
+		spawn_enemy(random_room_tile, get_random_enemy_type())
 		b = false
+
+func get_random_enemy_type()->String:
+	var rng = randf_range(0.0, 99.9)
+	var chance : Array
+	if dungeon_depth >= 24: chance = Data.SPAWN_RATES_ENEMIES.back()
+	else: chance = Data.SPAWN_RATES_ENEMIES[dungeon_depth/2]
+	
+	if rng <= chance[0]: return Data.ENEMY_GROUPS[0].pick_random()
+	elif rng <= chance[1]: return Data.ENEMY_GROUPS[1].pick_random()
+	elif rng <= chance[2]: return Data.ENEMY_GROUPS[2].pick_random()
+	else: return Data.ENEMY_GROUPS[3].pick_random()
+	
 
 func neighbors_and_weights(source : Vector2i, location: Vector2i)->Array:
 	
@@ -518,13 +534,15 @@ func clear_player_fov()->void:
 			tilemap.set_cell(SHADOW_LAYER, Vector2i(x,y), 0, SHADOW, 1)
 
 func connect_player_hb_hud()->void:
-	player.connect_health_signals(hud.update_health, hud.update_max_health)
+	player.connect_hud(hud.update_health, hud.update_max_health, hud.update_exp_bar,
+		hud.update_level_label, equipmenu.update_stats)
+
+
 
 func connect_player_inventory()->void:
 	player.connect_inventory_signal(_on_player_inventory_changed)
 
 func _on_player_inventory_changed()->void:
-	print("update invetory stuff")
 	invenmenu.update_inventory(player.inventory)
 	equipmenu.update_dropdowns(player.inventory, player.equipment)
 
@@ -549,7 +567,7 @@ func _on_ranged_ui_cast(item: Item, affected_tiles: Array[Vector2i])->void:
 	enemy_idices.reverse()
 	for enemy_idx in enemy_idices:
 		if enemy_idx >= 0:
-			enemy_list[enemy_idx].take_damage(damage)
+			enemy_list[enemy_idx].take_damage(damage + player.stats.res)
 	
 	player.inventory.del_item_from_bag(item.bag_index)
 	rangedmenu.reset()
@@ -578,8 +596,12 @@ func save_game(file_name : String)->void:
 	save.astar_map_contents = astar_map.map.contents
 	save.astar_map_dimensions = Vector2i(astar_map.map.num_cols, astar_map.map.num_rows)
 	save.enemy_tile_loc = enemy_tile_location_list
+	save.enemy_atk.resize(enemy_list.size())
+	save.enemy_max_health.resize(enemy_list.size())
 	save.enemy_health.resize(enemy_list.size())
 	for i in enemy_list.size():
+		save.enemy_atk[i] = enemy_list[i].atk
+		save.enemy_max_health[i] = enemy_list[i].health.get_max_health()
 		save.enemy_health[i] = enemy_list[i].health.get_health()
 	save.enemy_type.resize(enemy_list.size())
 	for i in enemy_list.size():
@@ -592,6 +614,8 @@ func save_game(file_name : String)->void:
 	save.player_max_health = player.health.get_max_health()
 	save.player_inventory = player.inventory
 	save.player_equipment = player.equipment
+	save.player_exp = player.experience
+	save.player_level = player.level
 	
 	save.save_game(file_name)
 
@@ -615,6 +639,8 @@ func load_game(file_name : String)->void:
 	#set up enemies
 	for i in save.enemy_tile_loc.size():
 		spawn_enemy(save.enemy_tile_loc[i], save.enemy_type[i])
+		enemy_list[i].atk = save.enemy_atk[i]
+		enemy_list[i].health.set_max_health(save.enemy_max_health[i])
 		enemy_list[i].health.set_health(save.enemy_health[i])
 	
 	trigger_manager = save.trigger_managaer
@@ -636,6 +662,9 @@ func load_game(file_name : String)->void:
 	player.health.set_max_health(save.player_max_health)
 	player.health.set_health(save.player_health)
 	player.stats.update_stats(player.equipment.get_stats())
+	player.level = save.player_level
+	player.experience = save.player_exp
+	player.yell_at_hud()
 	equipmenu.update_dropdowns(player.inventory, player.equipment)
 	equipmenu.update_stats(player.stats)
 	invenmenu.update_inventory(player.inventory)

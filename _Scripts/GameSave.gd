@@ -11,6 +11,8 @@ class_name GameSave
 
 @export_category("Enemies")
 @export var enemy_tile_loc : Array[Vector2i]
+@export var enemy_atk : Array[int]
+@export var enemy_max_health : Array[int]
 @export var enemy_health : Array[int]
 @export var enemy_type : Array[String]
 
@@ -23,6 +25,8 @@ class_name GameSave
 @export var player_equipment: Equipment
 @export var player_health : int
 @export var player_max_health : int
+@export var player_exp : int
+@export var player_level: int
 
 func save_game(file_path : String)->void:
 	print(ResourceSaver.save(self, file_path))

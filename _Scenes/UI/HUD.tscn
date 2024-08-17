@@ -6,13 +6,15 @@
 [ext_resource type="Texture2D" uid="uid://dmrymd64mo3co" path="res://Art/kenney_micro-roguelike/Tiles/Colored/tile_0131.png" id="3_drowf"]
 [ext_resource type="Texture2D" uid="uid://dgyger2jffmep" path="res://Art/kenney_micro-roguelike/Tiles/Colored/tile_0135.png" id="4_2prk8"]
 
-[node name="Hud" type="Control" node_paths=PackedStringArray("dungeon_depth_label", "wep_textrect")]
+[node name="Hud" type="Control" node_paths=PackedStringArray("dungeon_depth_label", "wep_textrect", "level_label", "expbar")]
 layout_mode = 3
 anchors_preset = 0
 theme = ExtResource("1_1ddu6")
 script = ExtResource("1_hcall")
 dungeon_depth_label = NodePath("CanvasLayer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer2/DunDepLabel")
-wep_textrect = NodePath("CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer/PanelContainer/TextureRect")
+wep_textrect = NodePath("CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer/PanelContainer/HBoxContainer/PanelContainer/TextureRect")
+level_label = NodePath("CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer/PanelContainer2/HBoxContainer/PanelContainer/LevelLabel")
+expbar = NodePath("CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer/PanelContainer2/HBoxContainer/PanelContainer2/EXPBAR")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -40,7 +42,7 @@ size_flags_stretch_ratio = 11.75
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
-theme_override_constants/separation = 1
+theme_override_constants/separation = 0
 
 [node name="TextureRect" type="TextureRect" parent="CanvasLayer/VBoxContainer/PanelContainer/HBoxContainer/PanelContainer/HealthBox"]
 layout_mode = 2
@@ -101,11 +103,28 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="TextureRect" type="TextureRect" parent="CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer/PanelContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer/PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer/PanelContainer/HBoxContainer/PanelContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 expand_mode = 2
 stretch_mode = 4
+
+[node name="PanelContainer2" type="PanelContainer" parent="CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer/PanelContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer/PanelContainer/HBoxContainer/PanelContainer2"]
+layout_mode = 2
+text = "L:"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="PanelContainer2" type="PanelContainer" parent="CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer"]
 layout_mode = 2
@@ -118,6 +137,30 @@ size_flags_horizontal = 4
 texture = ExtResource("3_drowf")
 expand_mode = 2
 stretch_mode = 4
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer/PanelContainer2"]
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer/PanelContainer2/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LevelLabel" type="Label" parent="CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer/PanelContainer2/HBoxContainer/PanelContainer"]
+layout_mode = 2
+text = "1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PanelContainer2" type="PanelContainer" parent="CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer/PanelContainer2/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 4.0
+
+[node name="EXPBAR" type="ProgressBar" parent="CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer/PanelContainer2/HBoxContainer/PanelContainer2"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+size_flags_vertical = 4
+show_percentage = false
 
 [node name="PanelContainer3" type="PanelContainer" parent="CanvasLayer/VBoxContainer/PanelContainer3/HBoxContainer"]
 layout_mode = 2

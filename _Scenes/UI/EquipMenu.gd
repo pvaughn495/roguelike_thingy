@@ -59,7 +59,6 @@ func add_item(dropdown : OptionButton, item : Item):
 	dropdown.set_item_metadata(dropdown.item_count-1, item)
 
 func update_dropdowns(inventory : Inventory, equipment: Equipment):
-	print(inventory.bag_items.size(), " many items in inventory's bag")
 	clear_dropdowns()
 	
 	add_item(wep_dropdown, equipment.weapon_slot)
@@ -79,9 +78,11 @@ func equip_item(drop_item_idx : int, dropdown: OptionButton):
 	if item_metadata: equipped_item.emit(item_metadata)
 
 func update_stats(stats: CharacterStats):
+	await get_tree().create_timer(0.25).timeout
+	print("update equipment menu stats, atk: ", stats.atk, ", arm: ", stats.arm, ", mag: ", stats.res)
 	atk_label.text = "Atk " + str(stats.atk)
 	arm_label.text = "Arm " + str(stats.arm)
-	res_label.text = "Res " + str(stats.res)
+	res_label.text = "Mag " + str(stats.res)
 
 
 

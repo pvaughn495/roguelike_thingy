@@ -13,9 +13,8 @@ signal del_trigger
 func connect_call_trigger(_entity):
 	pass
 
-func activate(_entity = null):
+func activate(_entity = null, val : int = 0)->void:
 	call_trigger.emit()
-	pass
 
 @warning_ignore("shadowed_variable")
 func set_trigger(map_location : Vector2i, index : int, type : StringName)->void:

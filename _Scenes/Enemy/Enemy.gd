@@ -21,6 +21,8 @@ var index : int
 
 signal dead
 
+func connect_signals(dead_callable: Callable)->void:
+	dead.connect(dead_callable)
 
 func take_damage(damage : int):
 	if !health.reduce_health(damage): state = 0
@@ -28,7 +30,8 @@ func take_damage(damage : int):
 func _on_health_out_of_health():
 	state = 0
 	dead.emit(index)
-	queue_free()
+	#queue_free()
+	call_deferred("queue_free")
 
 func set_enemy_type(type_name: String):
 	enemy_type = type_name

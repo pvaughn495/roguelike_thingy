@@ -1,6 +1,6 @@
 [gd_scene load_steps=11 format=3 uid="uid://bca72tl4qqlsl"]
 
-[ext_resource type="Script" path="res://_Scenes/main/Main.gd" id="1_jfq78"]
+[ext_resource type="Script" uid="uid://bhtmanmfpdu6k" path="res://_Scenes/main/Main.gd" id="1_jfq78"]
 [ext_resource type="TileSet" uid="uid://bhalbaoof2no" path="res://Art/dungeon_tileset.tres" id="2_g4n1h"]
 [ext_resource type="PackedScene" uid="uid://1yxdfyebpk8v" path="res://_Scenes/Enemy/Enemy.tscn" id="2_k2op7"]
 [ext_resource type="PackedScene" uid="uid://behfjk3315onj" path="res://_Scenes/player/Player.tscn" id="3_qtgtn"]
@@ -36,11 +36,9 @@ layer_1/navigation_enabled = false
 layer_1/tile_data = PackedInt32Array(-327678, 262144, 2, -327680, 327680, 2, -327676, 393216, 2)
 layer_2/name = "Entity"
 layer_2/navigation_enabled = false
-layer_2/tile_data = PackedInt32Array()
 layer_3/name = "Fog"
 layer_3/z_index = 10
 layer_3/navigation_enabled = false
-layer_3/tile_data = PackedInt32Array()
 
 [node name="Enemies" type="Node2D" parent="."]
 

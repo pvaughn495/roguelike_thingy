@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://bqkebe2nyp6qk"]
 
-[ext_resource type="Script" path="res://_Scenes/UI/EscMenu.gd" id="1_bm10w"]
+[ext_resource type="Script" uid="uid://45e523oqn2lw" path="res://_Scenes/UI/EscMenu.gd" id="1_bm10w"]
 [ext_resource type="Theme" uid="uid://c8vtm200tbpue" path="res://_Scenes/UI/menutheme.tres" id="1_yin14"]
 
 [node name="EscMenu" type="Control" node_paths=PackedStringArray("escpopup")]

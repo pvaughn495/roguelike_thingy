@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=3 uid="uid://lm32do761xf1"]
 
-[ext_resource type="Script" path="res://_Scenes/UI/EquipMenu.gd" id="1_ev48m"]
+[ext_resource type="Script" uid="uid://bm5t4sbmegpvt" path="res://_Scenes/UI/EquipMenu.gd" id="1_ev48m"]
 [ext_resource type="Theme" uid="uid://c8vtm200tbpue" path="res://_Scenes/UI/menutheme.tres" id="1_h7jow"]
 [ext_resource type="Texture2D" uid="uid://dyq6kd5cmq8f5" path="res://Art/atlastileset.tres" id="3_4urhn"]
 [ext_resource type="Texture2D" uid="uid://0jbwwy3b8p4r" path="res://Art/kenney_micro-roguelike/Tiles/Colored/tile_0017.png" id="4_lrqw7"]

@@ -2,7 +2,7 @@
 
 [ext_resource type="Theme" uid="uid://c8vtm200tbpue" path="res://_Scenes/UI/menutheme.tres" id="1_1ddu6"]
 [ext_resource type="Texture2D" uid="uid://c208lrwlgrcf3" path="res://Art/kenney_micro-roguelike/Tiles/Colored/tile_0102.png" id="1_bdy7f"]
-[ext_resource type="Script" path="res://_Scenes/UI/HUD.gd" id="1_hcall"]
+[ext_resource type="Script" uid="uid://dimm7fmc5bkot" path="res://_Scenes/UI/HUD.gd" id="1_hcall"]
 [ext_resource type="Texture2D" uid="uid://dmrymd64mo3co" path="res://Art/kenney_micro-roguelike/Tiles/Colored/tile_0131.png" id="3_drowf"]
 [ext_resource type="Texture2D" uid="uid://dgyger2jffmep" path="res://Art/kenney_micro-roguelike/Tiles/Colored/tile_0135.png" id="4_2prk8"]
 

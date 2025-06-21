@@ -110,7 +110,3 @@ func set_tiles_and_emit(tiles : Array[Vector2i]):
 		reticle.position = Vector2(valid_tile_list[selected_enemy] - player_tile)*TILE_SIZE + RET_ORIGIN
 		print(valid_tile_list[selected_enemy] - player_tile, reticle.position, reticle.visible)
 	interactable = true
-
-
-
-

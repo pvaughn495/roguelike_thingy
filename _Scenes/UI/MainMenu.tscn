@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://cq1lpwj0p8vtc"]
 
 [ext_resource type="Theme" uid="uid://c8vtm200tbpue" path="res://_Scenes/UI/menutheme.tres" id="1_7wcxd"]
-[ext_resource type="Script" path="res://_Scenes/UI/MainMenu.gd" id="1_bqj6i"]
+[ext_resource type="Script" uid="uid://c8gh76cnrdtiv" path="res://_Scenes/UI/MainMenu.gd" id="1_bqj6i"]
 
 [sub_resource type="Curve" id="Curve_y515b"]
 

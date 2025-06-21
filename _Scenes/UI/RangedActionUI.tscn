@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://bhpwsbud4cgwx"]
 
 [ext_resource type="Theme" uid="uid://c8vtm200tbpue" path="res://_Scenes/UI/menutheme.tres" id="1_x8ll2"]
-[ext_resource type="Script" path="res://_Scenes/UI/RangedActionUI.gd" id="2_gl5s8"]
+[ext_resource type="Script" uid="uid://bistanb7w053o" path="res://_Scenes/UI/RangedActionUI.gd" id="2_gl5s8"]
 [ext_resource type="Texture2D" uid="uid://b57h741qqb4re" path="res://Art/kenney_micro-roguelike/Tiles/Monochrome/tile_0097.png" id="3_y0tqv"]
 [ext_resource type="Texture2D" uid="uid://y0lmmxaowytm" path="res://Art/kenney_micro-roguelike/Tiles/Monochrome/tile_0096.png" id="4_428fu"]
 

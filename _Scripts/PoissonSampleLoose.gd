@@ -9,7 +9,6 @@ class_name PoissonDiskLoose
 ## for square or diamond shaped disks instead. 
 
 
-
 const NEIGHBORS = [Vector2i(-1,-1), Vector2i.UP, Vector2i(1,-1), Vector2i.RIGHT,
 	Vector2i(1,1), Vector2i.DOWN, Vector2i(-1,1), Vector2i.LEFT]
 
